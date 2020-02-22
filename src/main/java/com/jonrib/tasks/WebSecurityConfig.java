@@ -47,7 +47,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		
+		/*
 		// We don't need CSRF for this example
 		http.csrf().disable()
 		// dont authenticate this particular request
@@ -69,12 +69,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		// Add a filter to validate the tokens with every request
 		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+		*/
 		
-		/*
+		
 		http.csrf().disable()
 		.authorizeRequests()
 		.anyRequest().permitAll();
-		*/
+		
 	}
 
 
