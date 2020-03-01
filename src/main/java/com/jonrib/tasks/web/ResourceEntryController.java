@@ -1,5 +1,6 @@
 package com.jonrib.tasks.web;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
@@ -20,10 +21,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jonrib.tasks.model.Download;
+import com.jonrib.tasks.model.History;
 import com.jonrib.tasks.model.PreviewImage;
 import com.jonrib.tasks.model.ResourceEntry;
 import com.jonrib.tasks.model.ResourceFile;
+import com.jonrib.tasks.model.Task;
 import com.jonrib.tasks.model.User;
+import com.jonrib.tasks.repository.HistoryRepository;
 import com.jonrib.tasks.service.ResourceEntryService;
 import com.jonrib.tasks.service.SecurityService;
 import com.jonrib.tasks.service.UserService;
@@ -36,6 +40,8 @@ public class ResourceEntryController {
 	private SecurityService securityService;
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private HistoryRepository historyRepository;
 	
 	private ObjectMapper mapper = new ObjectMapper();
 	
@@ -77,6 +83,14 @@ public class ResourceEntryController {
 			newEntry.setFiles(new HashSet<ResourceFile>());
 			newEntry.setImages(new HashSet<PreviewImage>());
 			newEntry.setReaders(new HashSet<User>());
+			newEntry.setTasks(new HashSet<Task>());
+			newEntry.setHistories(new HashSet<History>());
+			History created = new History();
+			created.setAction("Created");
+			created.setDate(new Date());
+			created.setUserName(securityService.findLoggedInUsername());
+			historyRepository.save(created);
+			newEntry.getHistories().add(created);
 			resourceEntryService.save(newEntry);
 		}catch (Exception e) {
 			return new ResponseEntity<String>(e.toString(), HttpStatus.BAD_REQUEST);
@@ -131,6 +145,12 @@ public class ResourceEntryController {
 			}
 			currEntry.setReaders(readers);
 			currEntry.setEditors(editors);
+			History edited = new History();
+			edited.setAction("Edited");
+			edited.setDate(new Date());
+			edited.setUserName(securityService.findLoggedInUsername());
+			historyRepository.save(edited);
+			newEntry.getHistories().add(edited);
 			resourceEntryService.save(currEntry);
 			return new ResponseEntity<String>("success", HttpStatus.OK);
 		}catch (Exception e) {

@@ -2,10 +2,6 @@ package com.jonrib.tasks.model;
 
 import javax.persistence.*;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.HashSet;
@@ -29,14 +25,6 @@ public class User{
     
     @ManyToMany
     private Set<Role> roles = new HashSet<Role>();
-    
-    /*
-    @ManyToMany
-    private Set<Project> projects;
-    
-    @ManyToMany
-    private Set<Task> tasks;
-    */
 
     public Long getId() {
         return id;
@@ -77,22 +65,4 @@ public class User{
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
-    
-	/*
-	public Set<Project> getProjects() {
-		return projects;
-	}
-
-	public void setProjects(Set<Project> projects) {
-		this.projects = projects;
-	}
-	
-	public Set<Task> getTasks() {
-		return tasks;
-	}
-
-	public void setTasks(Set<Task> tasks) {
-		this.tasks = tasks;
-	}
-	*/
 }

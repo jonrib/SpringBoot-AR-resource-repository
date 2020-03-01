@@ -7,8 +7,6 @@ import org.springframework.core.io.Resource;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.jonrib.tasks.model.ResourceFile;
-
 public interface StorageService {
 
 	void init();
@@ -19,11 +17,11 @@ public interface StorageService {
 
 	Path load(String filename);
 
-	Resource loadAsResource(ResourceFile file);
-
 	void deleteAll(String dir);
 	
 	void delete(String path);
+
+	Resource loadAsResource(String path);
 	
 
 }

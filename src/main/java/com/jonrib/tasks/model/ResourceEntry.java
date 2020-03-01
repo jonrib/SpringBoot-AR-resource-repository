@@ -1,9 +1,7 @@
 package com.jonrib.tasks.model;
 
-import java.util.List;
 import java.util.Set;
 
-import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,13 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.jonrib.tasks.service.SecurityService;
-import com.jonrib.tasks.service.UserService;
 
 @Entity
 @Table(name = "entries")
@@ -45,6 +36,12 @@ public class ResourceEntry {
 	private Set<User> editors;
 	@ManyToMany
 	private Set<User> readers;
+	@ManyToMany
+	private Set<Task> tasks;
+	@ManyToMany
+	private Set<History> histories;
+	@ManyToMany
+	private Set<Comment> comments;
 	
 	public Long getId() {
 		return id;
@@ -117,5 +114,23 @@ public class ResourceEntry {
 	}
 	public void setAuthor(Set<User> author) {
 		this.author = author;
+	}
+	public Set<Task> getTasks() {
+		return tasks;
+	}
+	public void setTasks(Set<Task> tasks) {
+		this.tasks = tasks;
+	}
+	public Set<History> getHistories() {
+		return histories;
+	}
+	public void setHistories(Set<History> histories) {
+		this.histories = histories;
+	}
+	public Set<Comment> getComments() {
+		return comments;
+	}
+	public void setComments(Set<Comment> comments) {
+		this.comments = comments;
 	}
 }

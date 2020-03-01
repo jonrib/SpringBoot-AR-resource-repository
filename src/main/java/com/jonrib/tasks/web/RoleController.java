@@ -1,9 +1,5 @@
 package com.jonrib.tasks.web;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,16 +7,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jonrib.tasks.model.Role;
-import com.jonrib.tasks.model.User;
 import com.jonrib.tasks.service.RoleService;
 import com.jonrib.tasks.service.UserService;
 
@@ -97,7 +90,7 @@ public class RoleController {
 			Role role = roleService.findById(Long.parseLong(request.getRequestURI().substring(request.getRequestURI().lastIndexOf("/")+1, request.getRequestURI().length())));
 			if (role == null)
 				throw new Exception("Role not found");
-			Role newRole = mapper.readValue(taskJson, Role.class);
+			//Role newRole = mapper.readValue(taskJson, Role.class);
 			/*
 			Role newRole = mapper.treeToValue(root.at("/data"), Role.class);
 			Set<User> users = new HashSet<User>();

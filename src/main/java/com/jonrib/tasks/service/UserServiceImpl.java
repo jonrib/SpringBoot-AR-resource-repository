@@ -5,10 +5,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.jonrib.tasks.model.User;
-import com.jonrib.tasks.repository.RoleRepository;
 import com.jonrib.tasks.repository.UserRepository;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,8 +14,6 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -29,7 +25,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public void save(User user) {
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        //user.setRoles(new HashSet<>(roleRepository.findAll()));
         userRepository.save(user);
     }
 

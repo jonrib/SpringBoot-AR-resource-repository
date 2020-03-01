@@ -5,19 +5,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.jonrib.tasks.model.ResourceFile;
-import com.jonrib.tasks.repository.ResourceFileRepository;
 @Service
 public class StorageServiceImpl implements StorageService {
-	@Autowired
-	private ResourceFileRepository resourceFileRepository;
-
 	@Override
 	public void init() {
 		// TODO Auto-generated method stub
@@ -46,8 +39,8 @@ public class StorageServiceImpl implements StorageService {
 	}
 
 	@Override
-	public Resource loadAsResource(ResourceFile file) {
-		File actualFile = new File(file.getFilePath());
+	public Resource loadAsResource(String path) {
+		File actualFile = new File(path);
 		Resource resource = new FileSystemResource(actualFile);
 		return resource;
 	}
