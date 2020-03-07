@@ -44,7 +44,7 @@ public class UserController {
 		try {
 			return new ResponseEntity<String>(mapper.writeValueAsString(userService.findAll()), HttpStatus.OK);
 		}catch (Exception e) {
-			return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<String>(e.toString(), HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -53,10 +53,10 @@ public class UserController {
 		try {
 			User user = userService.findById(Long.parseLong(request.getRequestURI().substring(request.getRequestURI().lastIndexOf("/")+1, request.getRequestURI().length())));
 			if (user == null)
-				throw new Exception("User not found");
+				return new ResponseEntity<String>("User not found", HttpStatus.NOT_FOUND);
 			return new ResponseEntity<String>(mapper.writeValueAsString(user), HttpStatus.OK);
 		}catch (Exception e) {
-			return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<String>(e.toString(), HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -65,11 +65,11 @@ public class UserController {
 		try {
 			User newUser = mapper.readValue(userJson, User.class);
 			if (userService.findByUsername(newUser.getUsername()) != null)
-				throw new Exception("User already exists");
+				return new ResponseEntity<String>("Already exists", HttpStatus.BAD_REQUEST);
 
 			userService.save(newUser);
 		}catch (Exception e) {
-			return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<String>(e.toString(), HttpStatus.BAD_REQUEST);
 		}
 		return new ResponseEntity<String>("success", HttpStatus.OK);
 	}
@@ -103,7 +103,7 @@ public class UserController {
 			userService.delete(usr);
 			return new ResponseEntity<String>("success", HttpStatus.OK);
 		}catch (Exception e) {
-			return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<String>(e.toString(), HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -134,7 +134,7 @@ public class UserController {
 			userService.update(user);
 			return new ResponseEntity<String>("success", HttpStatus.OK);
 		}catch (Exception e) {
-			return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<String>(e.toString(), HttpStatus.BAD_REQUEST);
 		}
 	}
 
