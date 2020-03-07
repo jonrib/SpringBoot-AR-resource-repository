@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -39,10 +41,9 @@ public class NavigationController {
 	}
 
 	@GetMapping("/login")
-	public String login(Model model, String error, String logout, HttpServletResponse response) {
+	public ResponseEntity<String> login(Model model, String error, String logout, HttpServletResponse response) {
 		if (error != null)
-			model.addAttribute("error", "Your username and password is invalid.");
-
+			return new ResponseEntity<String>("Your username and password is invalid.", HttpStatus.BAD_REQUEST);
 		if (logout != null) {
 			model.addAttribute("message", "You have been logged out successfully.");
 			Cookie cookie = new Cookie("JWT", null);
@@ -52,7 +53,7 @@ public class NavigationController {
 		}
 		
 		
-		return "login";
+		return new ResponseEntity<String>("success", HttpStatus.OK);
 	}
 
 
@@ -127,19 +128,18 @@ public class NavigationController {
 	}
 	
 	@PostMapping("/login")
-	public String login(Model model, HttpServletResponse response, HttpServletRequest request) {
+	public ResponseEntity<String> login(Model model, HttpServletResponse response, HttpServletRequest request) {
 		String token = null;
 		try {
 			token = securityService.autoLogin(request.getParameter("username").toString(), request.getParameter("password").toString());
 		}catch (Exception e) {
-			model.addAttribute("error", "Your username and password is invalid.");
-			return "login";
+			return new ResponseEntity<String>("Your username and password is invalid.", HttpStatus.BAD_REQUEST);
 		}
 		Cookie cookie = new Cookie("JWT", token);
 		cookie.setMaxAge(120 * 60 * 60); 
 		response.addCookie(cookie);
 		
-		return "redirect:/ui/welcome";
+		return new ResponseEntity<String>("success", HttpStatus.OK);
 	}
 	
 }
