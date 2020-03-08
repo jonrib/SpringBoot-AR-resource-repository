@@ -1,5 +1,6 @@
 package com.jonrib.tasks.service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -14,6 +15,7 @@ import com.jonrib.tasks.model.PreviewImage;
 import com.jonrib.tasks.model.ResourceEntry;
 import com.jonrib.tasks.model.ResourceFile;
 import com.jonrib.tasks.model.Role;
+import com.jonrib.tasks.model.User;
 import com.jonrib.tasks.repository.DownloadRepository;
 import com.jonrib.tasks.repository.HistoryRepository;
 import com.jonrib.tasks.repository.PreviewImageRepository;
@@ -85,7 +87,8 @@ public class ResourceEntryServiceImpl implements ResourceEntryService {
 	}
 	@Override
 	public boolean canEdit(ResourceEntry entity) {
-		Set<Role> userRoles = userService.findByUsername(securityService.findLoggedInUsername()).getRoles();
+		User user = userService.findByUsername(securityService.findLoggedInUsername());
+		Set<Role> userRoles = user != null ? user.getRoles() : new HashSet<Role>();
 		boolean isAdmin = false;
 		for (Role role : userRoles) {
 			if (role.getName().equals("Admin")) {
