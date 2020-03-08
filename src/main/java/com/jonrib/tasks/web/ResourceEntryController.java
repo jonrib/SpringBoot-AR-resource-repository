@@ -150,10 +150,11 @@ public class ResourceEntryController {
 			edited.setDate(new Date());
 			edited.setUserName(securityService.findLoggedInUsername());
 			historyRepository.save(edited);
-			newEntry.getHistories().add(edited);
+			currEntry.getHistories().add(edited);
 			resourceEntryService.save(currEntry);
 			return new ResponseEntity<String>("success", HttpStatus.OK);
 		}catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseEntity<String>(e.toString(), HttpStatus.BAD_REQUEST);
 		}
 	}
