@@ -1,8 +1,11 @@
 package com.jonrib.tasks.web;
 
+import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -49,6 +52,26 @@ public class ResourceEntryController {
 	public ResponseEntity<String> getAllEntries(){
 		try {
 			return new ResponseEntity<String>(mapper.writeValueAsString(resourceEntryService.findAll()), HttpStatus.OK);
+		}catch (Exception e) {
+			return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
+		}
+	}
+	@GetMapping(value = "/resourceEntries/category/*")
+	public ResponseEntity<String> getAllEntriesForCategory(HttpServletRequest request){
+		try {
+			List<ResourceEntry> entries = resourceEntryService.findByCategory(request.getRequestURI().substring(request.getRequestURI().lastIndexOf("/")+1, request.getRequestURI().length()));
+			return new ResponseEntity<String>(mapper.writeValueAsString(entries), HttpStatus.OK);
+		}catch (Exception e) {
+			return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
+		}
+	}
+	
+	@GetMapping(value = "/resourceEntries/tags/*")
+	public ResponseEntity<String> getAllEntriesForTags(HttpServletRequest request){
+		try {
+			List<String> tags = Arrays.asList(URLDecoder.decode(request.getRequestURI().substring(request.getRequestURI().lastIndexOf("/")+1, request.getRequestURI().length()), java.nio.charset.StandardCharsets.UTF_8.toString()).split(" "));
+			List<ResourceEntry> entries = resourceEntryService.findByTagsIn(tags);
+			return new ResponseEntity<String>(mapper.writeValueAsString(entries), HttpStatus.OK);
 		}catch (Exception e) {
 			return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
 		}

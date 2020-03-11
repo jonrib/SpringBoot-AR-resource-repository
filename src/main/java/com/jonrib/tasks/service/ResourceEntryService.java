@@ -12,4 +12,6 @@ public interface ResourceEntryService {
 	void delete(ResourceEntry entity);
 	boolean canRead(ResourceEntry entity);
 	boolean canEdit(ResourceEntry entity);
+	List<ResourceEntry> findByCategory(String category);
+	List<ResourceEntry> findByTagsIn(List<String> tags);
 }

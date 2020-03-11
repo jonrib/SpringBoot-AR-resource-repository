@@ -98,6 +98,14 @@ public class ResourceEntryServiceImpl implements ResourceEntryService {
 		}
 		return isAdmin || entity.getAuthor().contains(userService.findByUsername(securityService.findLoggedInUsername())) || entity.getEditors().contains(userService.findByUsername(securityService.findLoggedInUsername()));
 	}
+	@Override
+	public List<ResourceEntry> findByCategory(String category) {
+		return resourceEntryRepository.findByCategory(category);
+	}
+	@Override
+	public List<ResourceEntry> findByTagsIn(List<String> tags) {
+		return resourceEntryRepository.findByTagsIn(tags);
+	}
 	
 
 }
