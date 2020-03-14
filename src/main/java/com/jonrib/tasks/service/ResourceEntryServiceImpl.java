@@ -62,23 +62,6 @@ public class ResourceEntryServiceImpl implements ResourceEntryService {
 		entity.setAuthor(null);
 		entity.setEditors(null);
 		entity.setReaders(null);
-		for (ResourceFile resFile : entity.getFiles()) {
-			storageService.delete(resFile.getFilePath());
-			resourceFileRepository.delete(resFile);
-		}
-		for (Download download : entity.getDownloads()) {
-			downloadRepository.delete(download);
-		}
-		for (PreviewImage resFile : entity.getImages()) {
-			storageService.delete(resFile.getFilePath());
-			previewImageRepository.delete(resFile);
-		}
-		for (History history : entity.getHistories()) {
-			historyRepository.delete(history);
-		}
-		for (Comment comment : entity.getComments()) {
-			commentService.delete(comment);
-		}
 		resourceEntryRepository.delete(entity);
 	}
 	@Override

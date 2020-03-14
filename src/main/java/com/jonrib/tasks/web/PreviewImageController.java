@@ -66,12 +66,6 @@ public class PreviewImageController {
 		}else {
 			return new ResponseEntity<String>("Not allowed to read resource entry files", HttpStatus.BAD_REQUEST);
 		}
-		/*
-		model.addAttribute("files", storageService.loadAll().map(
-				path -> MvcUriComponentsBuilder.fromMethodName(ResourceFileController.class,
-						"serveFile", path.getFileName().toString()).build().toUri().toString())
-				.collect(Collectors.toList()));
-		*/
 	}
 
 	@GetMapping("/resourceEntries/{eid:.+}/previewImages/{id:.+}")
@@ -108,7 +102,7 @@ public class PreviewImageController {
 	
 
 	@PostMapping("/resourceEntries/{id:.+}/previewImages")
-	public ResponseEntity<String> handleFileUpload(@PathVariable String id, @RequestParam("file") MultipartFile file,
+	public ResponseEntity<String> handleFileUpload(@PathVariable String id, @RequestParam("file") MultipartFile[] files,
 			RedirectAttributes redirectAttributes, HttpServletRequest request) throws Exception {
 		Optional<ResourceEntry> entry = resourceEntryService.findById(Long.parseLong(id));
 		if (entry.isEmpty())
@@ -117,19 +111,21 @@ public class PreviewImageController {
 			throw new ResourceEntryNoAccessException();
 		}
 		try {
-			PreviewImage fileEntry = new PreviewImage();
-			fileEntry.setFileName(file.getOriginalFilename());
-			fileEntry.setFilePath(request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId()+"/"+file.getOriginalFilename());
-			entry.get().getImages().add(fileEntry);
-			storageService.store(file, request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId());
-			previewImageRepository.save(fileEntry);
-			History edited = new History();
-			edited.setAction("Added preview image file");
-			edited.setDate(new Date());
-			edited.setUserName(securityService.findLoggedInUsername());
-			historyRepository.save(edited);
-			entry.get().getHistories().add(edited);
-			resourceEntryService.save(entry.get());
+			for (MultipartFile file : files) {
+				PreviewImage fileEntry = new PreviewImage();
+				fileEntry.setFileName(file.getOriginalFilename());
+				fileEntry.setFilePath(request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId()+"/"+file.getOriginalFilename());
+				entry.get().getImages().add(fileEntry);
+				storageService.store(file, request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId());
+				previewImageRepository.save(fileEntry);
+				History edited = new History();
+				edited.setAction("Added preview image file");
+				edited.setDate(new Date());
+				edited.setUserName(securityService.findLoggedInUsername());
+				historyRepository.save(edited);
+				entry.get().getHistories().add(edited);
+				resourceEntryService.save(entry.get());
+			}
 		}catch (Exception e) {
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
