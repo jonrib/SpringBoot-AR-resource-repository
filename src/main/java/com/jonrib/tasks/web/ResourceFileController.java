@@ -124,6 +124,7 @@ public class ResourceFileController {
 				entry.get().getFiles().add(fileEntry);
 				storageService.store(file, request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId());
 				fileEntry.setSize(file.getSize()+"");
+				fileEntry.setType(file.getOriginalFilename().split(".").length > 1 ? file.getOriginalFilename().split(".")[1] : "");
 				resourceFileRepository.save(fileEntry);
 				History edited = new History();
 				edited.setAction("Added resource file");
