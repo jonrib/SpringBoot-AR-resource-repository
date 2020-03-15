@@ -14,6 +14,7 @@ public class PreviewImage {
     private Long id;
 	private String filePath;
 	private String fileName;
+	private String size;
 	public Long getId() {
 		return id;
 	}
@@ -31,5 +32,11 @@ public class PreviewImage {
 	}
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
+	}
+	public String getSize() {
+		return size;
+	}
+	public void setSize(String size) {
+		this.size = size;
 	}
 }

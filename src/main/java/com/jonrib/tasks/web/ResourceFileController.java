@@ -108,7 +108,7 @@ public class ResourceFileController {
 	
 
 	@PostMapping("/resourceEntries/{id:.+}/files")
-	public ResponseEntity<String> handleFileUpload(@PathVariable String id, @RequestParam("file") MultipartFile file,
+	public ResponseEntity<String> handleFileUpload(@PathVariable String id, @RequestParam("file") MultipartFile[] files,
 			RedirectAttributes redirectAttributes, HttpServletRequest request) throws Exception {
 		Optional<ResourceEntry> entry = resourceEntryService.findById(Long.parseLong(id));
 		if (entry.isEmpty())
@@ -117,19 +117,22 @@ public class ResourceFileController {
 			throw new ResourceEntryNoAccessException();
 		}
 		try {
-			ResourceFile fileEntry = new ResourceFile();
-			fileEntry.setFileName(file.getOriginalFilename());
-			fileEntry.setFilePath(request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId()+"/"+file.getOriginalFilename());
-			entry.get().getFiles().add(fileEntry);
-			storageService.store(file, request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId());
-			resourceFileRepository.save(fileEntry);
-			History edited = new History();
-			edited.setAction("Added resource file");
-			edited.setDate(new Date());
-			edited.setUserName(securityService.findLoggedInUsername());
-			historyRepository.save(edited);
-			entry.get().getHistories().add(edited);
-			resourceEntryService.save(entry.get());
+			for (MultipartFile file : files) {
+				ResourceFile fileEntry = new ResourceFile();
+				fileEntry.setFileName(file.getOriginalFilename());
+				fileEntry.setFilePath(request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId()+"/"+file.getOriginalFilename());
+				entry.get().getFiles().add(fileEntry);
+				storageService.store(file, request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId());
+				fileEntry.setSize(file.getSize()+"");
+				resourceFileRepository.save(fileEntry);
+				History edited = new History();
+				edited.setAction("Added resource file");
+				edited.setDate(new Date());
+				edited.setUserName(securityService.findLoggedInUsername());
+				historyRepository.save(edited);
+				entry.get().getHistories().add(edited);
+				resourceEntryService.save(entry.get());
+			}
 		}catch (Exception e) {
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}

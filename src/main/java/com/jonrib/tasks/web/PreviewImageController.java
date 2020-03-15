@@ -117,6 +117,7 @@ public class PreviewImageController {
 				fileEntry.setFilePath(request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId()+"/"+file.getOriginalFilename());
 				entry.get().getImages().add(fileEntry);
 				storageService.store(file, request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId());
+				fileEntry.setSize(file.getSize()+"");
 				previewImageRepository.save(fileEntry);
 				History edited = new History();
 				edited.setAction("Added preview image file");
