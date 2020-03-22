@@ -48,9 +48,9 @@ public class ResourceEntryTasksController {
 	private ObjectMapper mapper = new ObjectMapper();
 	
 	@GetMapping(value = "/resourceEntries/{id:.+}/tasks")
-	public ResponseEntity<String> getAllEntries(@PathVariable String id){
+	public ResponseEntity<String> getAllEntries(@PathVariable String id, HttpServletRequest request){
 		try {
-			Set<Role> userRoles = userService.findByUsername(securityService.findLoggedInUsername()).getRoles();
+			Set<Role> userRoles = userService.findByUsername(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies()))).getRoles();
 			Optional<ResourceEntry> entry = resourceEntryService.findById(Long.parseLong(id));
 			if (entry.isEmpty()) {
 				return new ResponseEntity<String>("Resource entry not found", HttpStatus.NOT_FOUND);
@@ -81,7 +81,7 @@ public class ResourceEntryTasksController {
 			if (!resEntry.get().getTasks().contains(entry.get())) {
 				new ResponseEntity<String>("Entry not in resource entry", HttpStatus.BAD_REQUEST);
 			}
-			if (!resourceEntryService.canRead(resEntry.get()) && !resourceEntryService.canEdit(resEntry.get()))
+			if (!resourceEntryService.canRead(resEntry.get(),DataController.getJWTCookie(request.getCookies())) && !resourceEntryService.canEdit(resEntry.get(),DataController.getJWTCookie(request.getCookies())))
 				return new ResponseEntity<String>("Can't read entry", HttpStatus.BAD_REQUEST);
 			
 			return new ResponseEntity<String>(mapper.writeValueAsString(entry.get()), HttpStatus.OK);
@@ -92,12 +92,12 @@ public class ResourceEntryTasksController {
 	}
 
 	@PostMapping(value = "/resourceEntries/{id:.+}/tasks")
-	public ResponseEntity<String> postEntry(@PathVariable String id, @RequestBody String entryJson){
+	public ResponseEntity<String> postEntry(@PathVariable String id, @RequestBody String entryJson, HttpServletRequest request){
 		try {
 			JsonNode root = mapper.readTree(entryJson);
-			if (securityService.findLoggedInUsername() == "anonymousUser")
+			if (securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())) == "anonymousUser")
 				return new ResponseEntity<String>("You need to be logged in to create entries", HttpStatus.BAD_REQUEST);
-			Set<Role> userRoles = userService.findByUsername(securityService.findLoggedInUsername()).getRoles();
+			Set<Role> userRoles = userService.findByUsername(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies()))).getRoles();
 			boolean canCreate = false;
 			for (Role role : userRoles) {
 				if (role.getName().equals("TaskCreator") || role.getName().equals("Admin")) {
@@ -112,12 +112,12 @@ public class ResourceEntryTasksController {
 			if (resEntry.isEmpty()) {
 				return new ResponseEntity<String>("Resource entry not found", HttpStatus.NOT_FOUND);
 			}
-			if (!resourceEntryService.canEdit(resEntry.get())) {
+			if (!resourceEntryService.canEdit(resEntry.get(),DataController.getJWTCookie(request.getCookies()))) {
 				return new ResponseEntity<String>("User can't edit resource entry", HttpStatus.BAD_REQUEST);
 			}
 			Task newEntry = mapper.treeToValue(root.at("/entry"), Task.class);
 			Set<User> author = new HashSet<User>();
-			author.add(userService.findByUsername(securityService.findLoggedInUsername()));
+			author.add(userService.findByUsername(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies()))));
 			newEntry.setAuthor(author);
 			Set<User> users = new HashSet<User>();
 			for (Iterator<JsonNode> i = root.at("/users").elements(); i.hasNext();) {
@@ -133,7 +133,7 @@ public class ResourceEntryTasksController {
 			History edited = new History();
 			edited.setAction("Created task");
 			edited.setDate(new Date());
-			edited.setUserName(securityService.findLoggedInUsername());
+			edited.setUserName(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())));
 			historyRepository.save(edited);
 			resEntry.get().getHistories().add(edited);
 			resourceEntryService.save(resEntry.get());
@@ -153,10 +153,10 @@ public class ResourceEntryTasksController {
 			if (resEntry.isEmpty()) {
 				return new ResponseEntity<String>("Resource entry not found", HttpStatus.NOT_FOUND);
 			}
-			if (!resourceEntryService.canEdit(resEntry.get())) {
+			if (!resourceEntryService.canEdit(resEntry.get(),DataController.getJWTCookie(request.getCookies()))) {
 				return new ResponseEntity<String>("User can't edit resource entry", HttpStatus.BAD_REQUEST);
 			}
-			Set<Role> userRoles = userService.findByUsername(securityService.findLoggedInUsername()).getRoles();
+			Set<Role> userRoles = userService.findByUsername(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies()))).getRoles();
 			boolean canDelete = false;
 			for (Role role : userRoles) {
 				if (role.getName().equals("TaskDeletor") || role.getName().equals("Admin")) {
@@ -173,7 +173,7 @@ public class ResourceEntryTasksController {
 			History edited = new History();
 			edited.setAction("Removed task");
 			edited.setDate(new Date());
-			edited.setUserName(securityService.findLoggedInUsername());
+			edited.setUserName(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())));
 			historyRepository.save(edited);
 			resEntry.get().getHistories().add(edited);
 			resourceEntryService.save(resEntry.get());
@@ -193,7 +193,7 @@ public class ResourceEntryTasksController {
 			if (resEntry.isEmpty()) {
 				return new ResponseEntity<String>("Resource entry not found", HttpStatus.NOT_FOUND);
 			}
-			if (resourceEntryService.canEdit(resEntry.get())) {
+			if (resourceEntryService.canEdit(resEntry.get(),DataController.getJWTCookie(request.getCookies()))) {
 				return new ResponseEntity<String>("User can't edit resource entry", HttpStatus.BAD_REQUEST);
 			}
 			Task currEntry = entry.get();
@@ -234,7 +234,7 @@ public class ResourceEntryTasksController {
 			History edited = new History();
 			edited.setAction("Edited task");
 			edited.setDate(new Date());
-			edited.setUserName(securityService.findLoggedInUsername());
+			edited.setUserName(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())));
 			historyRepository.save(edited);
 			resEntry.get().getHistories().add(edited);
 			resourceEntryService.save(resEntry.get());

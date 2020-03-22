@@ -83,7 +83,7 @@ public class ResourceEntryController {
 			Optional<ResourceEntry> entry = resourceEntryService.findById(Long.parseLong(request.getRequestURI().substring(request.getRequestURI().lastIndexOf("/")+1, request.getRequestURI().length())));
 			if (!entry.isPresent())
 				return new ResponseEntity<String>("Entry not found", HttpStatus.NOT_FOUND);
-			if (!resourceEntryService.canRead(entry.get()) && !resourceEntryService.canEdit(entry.get()))
+			if (!resourceEntryService.canRead(entry.get(),DataController.getJWTCookie(request.getCookies())) && !resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies())))
 				return new ResponseEntity<String>("Can't read entry", HttpStatus.BAD_REQUEST);
 			return new ResponseEntity<String>(mapper.writeValueAsString(entry.get()), HttpStatus.OK);
 		}catch (Exception e) {
@@ -93,13 +93,13 @@ public class ResourceEntryController {
 	}
 
 	@PostMapping(value = "/resourceEntries")
-	public ResponseEntity<String> postEntry(@RequestBody String entryJson){
+	public ResponseEntity<String> postEntry(@RequestBody String entryJson, HttpServletRequest request){
 		try {
-			if (securityService.findLoggedInUsername() == "anonymousUser")
+			if (securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())) == "anonymousUser")
 				return new ResponseEntity<String>("You need to be logged in to create entries", HttpStatus.BAD_REQUEST);
 			ResourceEntry newEntry = mapper.readValue(entryJson, ResourceEntry.class);
 			Set<User> author = new HashSet<User>();
-			author.add(userService.findByUsername(securityService.findLoggedInUsername()));
+			author.add(userService.findByUsername(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies()))));
 			newEntry.setAuthor(author);
 			newEntry.setDownloads(new HashSet<Download>());
 			newEntry.setEditors(new HashSet<User>());
@@ -111,7 +111,7 @@ public class ResourceEntryController {
 			History created = new History();
 			created.setAction("Created");
 			created.setDate(new Date());
-			created.setUserName(securityService.findLoggedInUsername());
+			created.setUserName(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())));
 			historyRepository.save(created);
 			newEntry.getHistories().add(created);
 			resourceEntryService.save(newEntry);
@@ -127,7 +127,7 @@ public class ResourceEntryController {
 			Optional<ResourceEntry> entry = resourceEntryService.findById(Long.parseLong(request.getRequestURI().substring(request.getRequestURI().lastIndexOf("/")+1, request.getRequestURI().length())));
 			if (entry.isEmpty())
 				return new ResponseEntity<String>("Entry not found", HttpStatus.NOT_FOUND);
-			if (!resourceEntryService.canEdit(entry.get()))
+			if (!resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies())))
 				return new ResponseEntity<String>("You're not an editor for entry", HttpStatus.NOT_FOUND);
 			resourceEntryService.delete(entry.get());
 			return new ResponseEntity<String>("success", HttpStatus.OK);
@@ -142,7 +142,7 @@ public class ResourceEntryController {
 			Optional<ResourceEntry> entry = resourceEntryService.findById(Long.parseLong(request.getRequestURI().substring(request.getRequestURI().lastIndexOf("/")+1, request.getRequestURI().length())));
 			if (entry.isEmpty())
 				return new ResponseEntity<String>("Entry not found", HttpStatus.NOT_FOUND);
-			if (!resourceEntryService.canEdit(entry.get()))
+			if (!resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies())))
 				return new ResponseEntity<String>("You're not an editor for entry", HttpStatus.NOT_FOUND);
 			ResourceEntry currEntry = entry.get();
 			JsonNode root = mapper.readTree(entryJson);
@@ -171,7 +171,7 @@ public class ResourceEntryController {
 			History edited = new History();
 			edited.setAction("Edited");
 			edited.setDate(new Date());
-			edited.setUserName(securityService.findLoggedInUsername());
+			edited.setUserName(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())));
 			historyRepository.save(edited);
 			currEntry.getHistories().add(edited);
 			resourceEntryService.save(currEntry);

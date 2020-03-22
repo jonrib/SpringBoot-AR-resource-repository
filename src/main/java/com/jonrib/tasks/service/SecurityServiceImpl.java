@@ -1,5 +1,7 @@
 package com.jonrib.tasks.service;
 
+import javax.servlet.http.Cookie;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import com.jonrib.tasks.jwt.JwtTokenUtil;
+
+import io.jsonwebtoken.ExpiredJwtException;
 
 @Service
 public class SecurityServiceImpl implements SecurityService{
@@ -27,12 +31,22 @@ public class SecurityServiceImpl implements SecurityService{
     private static final Logger logger = LoggerFactory.getLogger(SecurityServiceImpl.class);
 
     @Override
-    public String findLoggedInUsername() {
-    	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    	if (auth != null)
-    		return auth.getName();
+    public String findLoggedInUsername(String token) {
+		if (token != null && token.startsWith("Bearer ")) {
+			String jwtToken = token.substring(7);
+			try {
+				String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
+				return username;
+			} catch (IllegalArgumentException e) {
+				System.out.println("Get logged in Unable to get JWT Token");
+			} catch (ExpiredJwtException e) {
+				System.out.println("Get logged in JWT Token has expired");
+			}
+		} else {
+			logger.warn("Get logged in JWT Token does not begin with JWT String.");
+		}
 
-        return null;
+        return "anonymousUser";
     }
 
     @Override
@@ -42,10 +56,11 @@ public class SecurityServiceImpl implements SecurityService{
         authenticationManager.authenticate(usernamePasswordAuthenticationToken);
 
         if (usernamePasswordAuthenticationToken.isAuthenticated()) {
-            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-            logger.debug(String.format("Auto login %s successfully!", username));
+            //SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            //logger.debug(String.format("Auto login %s successfully!", username));
+        	return jwtTokenUtil.generateToken(userDetails);
         }
         
-		return jwtTokenUtil.generateToken(userDetails);
+		return "";
     }
 }

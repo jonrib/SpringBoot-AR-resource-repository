@@ -36,7 +36,7 @@ public class DownloadController {
 			Optional<ResourceEntry> entry = resourceEntryService.findById(Long.parseLong(id));
 			if (entry.isEmpty())
 				return new ResponseEntity<String>("No resource by id found", HttpStatus.NOT_FOUND);
-			if (resourceEntryService.canRead(entry.get()) || resourceEntryService.canEdit(entry.get())) {
+			if (resourceEntryService.canRead(entry.get(),DataController.getJWTCookie(request.getCookies())) || resourceEntryService.canEdit(entry.get(), DataController.getJWTCookie(request.getCookies()))) {
 				return new ResponseEntity<String>(mapper.writeValueAsString(entry.get().getDownloads()), HttpStatus.OK);
 			}else {
 				return new ResponseEntity<String>("Not allowed to read resource entry downloads", HttpStatus.BAD_REQUEST);
@@ -52,7 +52,7 @@ public class DownloadController {
 		Optional<ResourceEntry> entry = resourceEntryService.findById(Long.parseLong(id));
 		if (entry.isEmpty())
 			throw new ResourceEntryNotFoundException();
-		if (!resourceEntryService.canEdit(entry.get()) && !resourceEntryService.canRead(entry.get())) {
+		if (!resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies())) && !resourceEntryService.canRead(entry.get(),DataController.getJWTCookie(request.getCookies()))) {
 			return new ResponseEntity<String>("Not allowed to read resource entry downloads", HttpStatus.BAD_REQUEST);
 		}
 		try {

@@ -71,7 +71,7 @@ public class TaskController {
 			if (entry.isEmpty()) {
 				return new ResponseEntity<String>("Entry not found", HttpStatus.NOT_FOUND);
 			}
-			if (!entry.get().getUsers().contains(user) || !user.equals(userService.findByUsername(securityService.findLoggedInUsername()))) {
+			if (!entry.get().getUsers().contains(user) || !user.equals(userService.findByUsername(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies()))))) {
 				return new ResponseEntity<String>("Can't see someone else's task", HttpStatus.BAD_REQUEST);
 			}
 			return new ResponseEntity<String>(mapper.writeValueAsString(entry.get()), HttpStatus.OK);
@@ -97,7 +97,7 @@ public class TaskController {
 			if (entry.isEmpty()) {
 				return new ResponseEntity<String>("Entry not found", HttpStatus.NOT_FOUND);
 			}
-			if (!entry.get().getUsers().contains(user) || !user.equals(userService.findByUsername(securityService.findLoggedInUsername()))) {
+			if (!entry.get().getUsers().contains(user) || !user.equals(userService.findByUsername(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies()))))) {
 				return new ResponseEntity<String>("Can't see someone else's task", HttpStatus.BAD_REQUEST);
 			}
 			Task currEntry = entry.get();

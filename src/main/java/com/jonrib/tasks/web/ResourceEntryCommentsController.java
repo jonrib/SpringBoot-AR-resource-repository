@@ -36,13 +36,13 @@ public class ResourceEntryCommentsController {
 	private ObjectMapper mapper = new ObjectMapper();
 	
 	@GetMapping(value = "/resourceEntries/{id:.+}/comments")
-	public ResponseEntity<String> getAllEntries(@PathVariable String id){
+	public ResponseEntity<String> getAllEntries(@PathVariable String id, HttpServletRequest request){
 		try {
 			Optional<ResourceEntry> entry = resourceEntryService.findById(Long.parseLong(id));
 			if (entry.isEmpty()) {
 				return new ResponseEntity<String>("Resource entry not found", HttpStatus.NOT_FOUND);
 			}
-			if (!resourceEntryService.canEdit(entry.get()) && !resourceEntryService.canRead(entry.get())) {
+			if (!resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies())) && !resourceEntryService.canRead(entry.get(),DataController.getJWTCookie(request.getCookies()))) {
 				return new ResponseEntity<String>("Can't read resource entry", HttpStatus.BAD_REQUEST);
 			}
 			return new ResponseEntity<String>(mapper.writeValueAsString(entry.get().getComments()), HttpStatus.OK);
@@ -61,10 +61,10 @@ public class ResourceEntryCommentsController {
 			if (resEntry.isEmpty()) {
 				return new ResponseEntity<String>("Resource entry not found", HttpStatus.NOT_FOUND);
 			}
-			if (!resourceEntryService.canEdit(resEntry.get()) && !resourceEntryService.canRead(resEntry.get())) {
+			if (!resourceEntryService.canEdit(resEntry.get(),DataController.getJWTCookie(request.getCookies())) && !resourceEntryService.canRead(resEntry.get(),DataController.getJWTCookie(request.getCookies()))) {
 				return new ResponseEntity<String>("User can't edit resource entry", HttpStatus.BAD_REQUEST);
 			}
-			if (!entry.get().getUserName().equals(securityService.findLoggedInUsername()))
+			if (!entry.get().getUserName().equals(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies()))))
 				return new ResponseEntity<String>("Only author can delete comment", HttpStatus.BAD_REQUEST);
 			removeFromComments(resEntry.get().getComments(), entry.get());
 			resourceEntryService.save(resEntry.get());
@@ -92,12 +92,12 @@ public class ResourceEntryCommentsController {
 			if (resEntry.isEmpty()) {
 				return new ResponseEntity<String>("Resource entry not found", HttpStatus.NOT_FOUND);
 			}
-			if (!resourceEntryService.canEdit(resEntry.get()) && !resourceEntryService.canRead(resEntry.get())) {
+			if (!resourceEntryService.canEdit(resEntry.get(),DataController.getJWTCookie(request.getCookies())) && !resourceEntryService.canRead(resEntry.get(),DataController.getJWTCookie(request.getCookies()))) {
 				return new ResponseEntity<String>("User can't edit resource entry", HttpStatus.BAD_REQUEST);
 			}
 			
 			Comment entry = mapper.readValue(entryJson, Comment.class);
-			entry.setUserName(securityService.findLoggedInUsername());
+			entry.setUserName(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())));
 			entry.setDate(new Date());
 			commentService.save(entry);
 			entry.setReplies(new HashSet<Comment>());
@@ -120,11 +120,11 @@ public class ResourceEntryCommentsController {
 			if (resEntry.isEmpty()) {
 				return new ResponseEntity<String>("Resource entry not found", HttpStatus.NOT_FOUND);
 			}
-			if (!resourceEntryService.canEdit(resEntry.get()) && !resourceEntryService.canRead(resEntry.get())) {
+			if (!resourceEntryService.canEdit(resEntry.get(),DataController.getJWTCookie(request.getCookies())) && !resourceEntryService.canRead(resEntry.get(),DataController.getJWTCookie(request.getCookies()))) {
 				return new ResponseEntity<String>("User can't edit resource entry", HttpStatus.BAD_REQUEST);
 			}
 			Comment reply = mapper.readValue(entryJson, Comment.class);
-			reply.setUserName(securityService.findLoggedInUsername());
+			reply.setUserName(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())));
 			reply.setDate(new Date());
 			entry.get().setReplies(new HashSet<Comment>());
 			entry.get().getReplies().add(reply);

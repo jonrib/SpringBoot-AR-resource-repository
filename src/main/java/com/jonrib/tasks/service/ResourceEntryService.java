@@ -10,8 +10,8 @@ public interface ResourceEntryService {
 	Optional<ResourceEntry> findById(Long id);
 	ResourceEntry save(ResourceEntry entity);
 	void delete(ResourceEntry entity);
-	boolean canRead(ResourceEntry entity);
-	boolean canEdit(ResourceEntry entity);
+	boolean canRead(ResourceEntry entity, String token);
+	boolean canEdit(ResourceEntry entity, String token);
 	List<ResourceEntry> findByCategory(String category);
 	List<ResourceEntry> findByTagsIn(List<String> tags);
 }

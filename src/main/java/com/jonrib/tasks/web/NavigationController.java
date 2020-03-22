@@ -48,7 +48,7 @@ public class NavigationController {
 			model.addAttribute("message", "You have been logged out successfully.");
 			Cookie cookie = new Cookie("JWT", null);
 			cookie.setMaxAge(0);
-			//cookie.setHttpOnly(true);
+			cookie.setHttpOnly(true);
 			response.addCookie(cookie);
 		}
 		
@@ -56,7 +56,7 @@ public class NavigationController {
 		return new ResponseEntity<String>("success", HttpStatus.OK);
 	}
 
-
+	/*
 	@GetMapping({"/"})
 	public void main(Model model, HttpServletResponse response) throws IOException {
 		if (securityService.findLoggedInUsername() != "" && securityService.findLoggedInUsername() != null) {
@@ -108,7 +108,7 @@ public class NavigationController {
 	public String editProject(Model model) {
 		return "projectform";
 	}
-
+	*/
 	@PostMapping("/ui/registration")
 	public String registration(@ModelAttribute("userForm") User userForm, BindingResult bindingResult, HttpServletResponse response) {
 		userValidator.validate(userForm, bindingResult);
@@ -137,9 +137,12 @@ public class NavigationController {
 		}
 		Cookie cookie = new Cookie("JWT", token);
 		cookie.setMaxAge(120 * 60 * 60); 
+		cookie.setHttpOnly(true);
+		cookie.setPath("/"); // global cookie accessible every where
+		//cookie.setSecure(true);
 		response.addCookie(cookie);
 		
-		return new ResponseEntity<String>("success", HttpStatus.OK);
+		return new ResponseEntity<String>(token, HttpStatus.OK);
 	}
 	
 }

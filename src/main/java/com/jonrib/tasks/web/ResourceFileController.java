@@ -61,7 +61,7 @@ public class ResourceFileController {
 		Optional<ResourceEntry> entry = resourceEntryService.findById(Long.parseLong(id));
 		if (entry.isEmpty())
 			return new ResponseEntity<String>("No resource by id found", HttpStatus.NOT_FOUND);
-		if (resourceEntryService.canRead(entry.get()) || resourceEntryService.canEdit(entry.get())) {
+		if (resourceEntryService.canRead(entry.get(),DataController.getJWTCookie(request.getCookies())) || resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies()))) {
 			return new ResponseEntity<String>(mapper.writeValueAsString(entry.get().getFiles()), HttpStatus.OK);
 		}else {
 			return new ResponseEntity<String>("Not allowed to read resource entry files", HttpStatus.BAD_REQUEST);
@@ -80,7 +80,7 @@ public class ResourceFileController {
 		Optional<ResourceEntry> entry = resourceEntryService.findById(Long.parseLong(eid));
 		if (entry.isEmpty())
 			throw new ResourceEntryNotFoundException();
-		if (!resourceEntryService.canRead(entry.get()) && !resourceEntryService.canEdit(entry.get())) {
+		if (!resourceEntryService.canRead(entry.get(),DataController.getJWTCookie(request.getCookies())) && !resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies()))) {
 			throw new ResourceEntryNoAccessException();
 		}
 		Optional<ResourceFile> file = entry.get().getFiles().stream().filter(x -> x.getId() == Long.parseLong(id)).findFirst();
@@ -113,7 +113,7 @@ public class ResourceFileController {
 		Optional<ResourceEntry> entry = resourceEntryService.findById(Long.parseLong(id));
 		if (entry.isEmpty())
 			throw new ResourceEntryNotFoundException();
-		if (!resourceEntryService.canEdit(entry.get())) {
+		if (!resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies()))) {
 			throw new ResourceEntryNoAccessException();
 		}
 		try {
@@ -129,7 +129,7 @@ public class ResourceFileController {
 				History edited = new History();
 				edited.setAction("Added resource file");
 				edited.setDate(new Date());
-				edited.setUserName(securityService.findLoggedInUsername());
+				edited.setUserName(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())));
 				historyRepository.save(edited);
 				entry.get().getHistories().add(edited);
 				resourceEntryService.save(entry.get());
@@ -145,7 +145,7 @@ public class ResourceFileController {
 		Optional<ResourceEntry> entry = resourceEntryService.findById(Long.parseLong(id));
 		if (entry.isEmpty())
 			throw new ResourceEntryNotFoundException();
-		if (!resourceEntryService.canEdit(entry.get())) {
+		if (!resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies()))) {
 			throw new ResourceEntryNoAccessException();
 		}
 		try {
@@ -157,7 +157,7 @@ public class ResourceFileController {
 			History edited = new History();
 			edited.setAction("Removed resource files");
 			edited.setDate(new Date());
-			edited.setUserName(securityService.findLoggedInUsername());
+			edited.setUserName(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())));
 			historyRepository.save(edited);
 			entry.get().getHistories().add(edited);
 			resourceEntryService.save(entry.get());
@@ -173,7 +173,7 @@ public class ResourceFileController {
 		Optional<ResourceEntry> entry = resourceEntryService.findById(Long.parseLong(eid));
 		if (entry.isEmpty())
 			throw new ResourceEntryNotFoundException();
-		if (!resourceEntryService.canEdit(entry.get())) {
+		if (!resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies()))) {
 			throw new ResourceEntryNoAccessException();
 		}
 		Optional<ResourceFile> file = entry.get().getFiles().stream().filter(x -> x.getId() == Long.parseLong(id)).findFirst();
@@ -187,7 +187,7 @@ public class ResourceFileController {
 			History edited = new History();
 			edited.setAction("Removed resource file");
 			edited.setDate(new Date());
-			edited.setUserName(securityService.findLoggedInUsername());
+			edited.setUserName(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())));
 			historyRepository.save(edited);
 			entry.get().getHistories().add(edited);
 			resourceEntryService.save(entry.get());

@@ -22,7 +22,7 @@ public class CommentServiceImpl implements CommentService {
 
 	@Override
 	public void delete(Comment entity) {
-		deleteReplies(entity.getReplies());
+		//deleteReplies(entity.getReplies());
 		commentRepository.delete(entity);
 	}
 	

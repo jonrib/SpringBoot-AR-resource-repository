@@ -27,7 +27,11 @@ public class JwtTokenUtil implements Serializable {
 	private final String secret = "JWTsecretKey2020KTU";
 	//retrieve username from jwt token
 	public String getUsernameFromToken(String token) {
-		return getClaimFromToken(token, Claims::getSubject);
+		try {
+			return getClaimFromToken(token, Claims::getSubject);
+		}catch(Exception e) {
+			return "anonymousUser";
+		}
 	}
 	//retrieve expiration date from jwt token
 	public Date getExpirationDateFromToken(String token) {
