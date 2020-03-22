@@ -24,6 +24,8 @@ public class DataController{
 	 }
 	 
 	 public static String getJWTCookie(Cookie[] cookies) {
+		 if (cookies == null)
+			 return "";
 		 for (Cookie cookie : cookies) {
 				System.out.println("here " + cookie.getName());
 				if (cookie.getName().equals("JWT")) {
