@@ -99,12 +99,12 @@ public class ResourceEntryCommentsController {
 			Comment entry = mapper.readValue(entryJson, Comment.class);
 			entry.setUserName(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())));
 			entry.setDate(new Date());
-			commentService.save(entry);
+			Comment rez = commentService.save(entry);
 			entry.setReplies(new HashSet<Comment>());
 			resEntry.get().getComments().add(entry);
 			resourceEntryService.save(resEntry.get());
 			
-			return new ResponseEntity<String>("success", HttpStatus.OK);
+			return new ResponseEntity<String>(rez.getId()+"", HttpStatus.OK);
 		}catch (Exception e) {
 			return new ResponseEntity<String>(e.toString(), HttpStatus.BAD_REQUEST);
 		}
@@ -131,10 +131,10 @@ public class ResourceEntryCommentsController {
 			
 			//resEntry.get().getComments().add(entry);
 			//resourceEntryService.save(resEntry.get());
-			commentService.save(reply);
+			Comment rez = commentService.save(reply);
 			commentService.save(entry.get());
 			
-			return new ResponseEntity<String>("success", HttpStatus.OK);
+			return new ResponseEntity<String>(rez.getId()+"", HttpStatus.OK);
 		}catch (Exception e) {
 			return new ResponseEntity<String>(e.toString(), HttpStatus.BAD_REQUEST);
 		}

@@ -66,6 +66,8 @@ public class ResourceEntryServiceImpl implements ResourceEntryService {
 	}
 	@Override
 	public boolean canRead(ResourceEntry entity, String token) {
+		if (!entity.isPrivate())
+			return true;
 		return (entity.isPrivate() && entity.getReaders().contains(userService.findByUsername(securityService.findLoggedInUsername(token)))) || entity.getAuthor().contains(userService.findByUsername(securityService.findLoggedInUsername(token)));
 	}
 	@Override

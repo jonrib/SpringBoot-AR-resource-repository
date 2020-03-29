@@ -33,12 +33,15 @@ import com.jonrib.tasks.model.User;
 import com.jonrib.tasks.repository.HistoryRepository;
 import com.jonrib.tasks.service.ResourceEntryService;
 import com.jonrib.tasks.service.SecurityService;
+import com.jonrib.tasks.service.StorageService;
 import com.jonrib.tasks.service.UserService;
 
 @Controller
 public class ResourceEntryController {
 	@Autowired
 	private ResourceEntryService resourceEntryService;
+	@Autowired
+	private StorageService storageService;
 	@Autowired
 	private SecurityService securityService;
 	@Autowired
@@ -129,6 +132,8 @@ public class ResourceEntryController {
 				return new ResponseEntity<String>("Entry not found", HttpStatus.NOT_FOUND);
 			if (!resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies())))
 				return new ResponseEntity<String>("You're not an editor for entry", HttpStatus.NOT_FOUND);
+			storageService.deleteAll(request.getServletContext().getRealPath("/uploadedResourceFiles/")+entry.get().getId());
+			storageService.deleteAll(request.getServletContext().getRealPath("/uploadedPreviewImages/")+entry.get().getId());
 			resourceEntryService.delete(entry.get());
 			return new ResponseEntity<String>("success", HttpStatus.OK);
 		}catch (Exception e) {
