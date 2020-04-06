@@ -20,9 +20,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jonrib.tasks.model.Comment;
 import com.jonrib.tasks.model.ResourceEntry;
+import com.jonrib.tasks.model.Role;
+import com.jonrib.tasks.model.User;
 import com.jonrib.tasks.service.CommentService;
 import com.jonrib.tasks.service.ResourceEntryService;
 import com.jonrib.tasks.service.SecurityService;
+import com.jonrib.tasks.service.UserService;
 
 @Controller
 public class ResourceEntryCommentsController {
@@ -32,6 +35,8 @@ public class ResourceEntryCommentsController {
 	private ResourceEntryService resourceEntryService;
 	@Autowired
 	private CommentService commentService;
+	@Autowired
+	private UserService userService;
 	
 	private ObjectMapper mapper = new ObjectMapper();
 	
@@ -64,8 +69,17 @@ public class ResourceEntryCommentsController {
 			//if (!resourceEntryService.canEdit(resEntry.get(),DataController.getJWTCookie(request.getCookies())) && !resourceEntryService.canRead(resEntry.get(),DataController.getJWTCookie(request.getCookies()))) {
 				//return new ResponseEntity<String>("User can't edit resource entry", HttpStatus.BAD_REQUEST);
 			//}
-			if (!entry.get().getUserName().equals(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies()))))
-				return new ResponseEntity<String>("Only author can delete comment", HttpStatus.BAD_REQUEST);
+			User user = userService.findByUsername(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())));
+			Set<Role> userRoles = user != null ? user.getRoles() : new HashSet<Role>();
+			boolean isAdmin = false;
+			for (Role role : userRoles) {
+				if (role.getName().equals("Admin")) {
+					isAdmin = true;
+					break;
+				}
+			}
+			if (!isAdmin && !entry.get().getUserName().equals(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies()))))
+				return new ResponseEntity<String>("Only author or admin can delete comment", HttpStatus.BAD_REQUEST);
 			removeFromComments(resEntry.get().getComments(), entry.get());
 			resourceEntryService.save(resEntry.get());
 			commentService.delete(entry.get());
