@@ -1,5 +1,7 @@
 package com.jonrib.tasks.service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -89,7 +91,9 @@ public class ResourceEntryServiceImpl implements ResourceEntryService {
 	}
 	@Override
 	public List<ResourceEntry> findByTagsIn(List<String> tags) {
-		return resourceEntryRepository.findByTagsIn(tags);
+		HashSet<ResourceEntry> entries = new HashSet<ResourceEntry>();
+		entries.addAll(resourceEntryRepository.findByTagsIn(tags));
+		return new ArrayList<ResourceEntry>(entries);
 	}
 	
 
