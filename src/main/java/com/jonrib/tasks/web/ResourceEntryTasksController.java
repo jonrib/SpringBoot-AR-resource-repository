@@ -95,7 +95,7 @@ public class ResourceEntryTasksController {
 	public ResponseEntity<String> postEntry(@PathVariable String id, @RequestBody String entryJson, HttpServletRequest request){
 		try {
 			JsonNode root = mapper.readTree(entryJson);
-			if (securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())) == "anonymousUser")
+			if (securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())).equals("anonymousUser"))
 				return new ResponseEntity<String>("You need to be logged in to create entries", HttpStatus.BAD_REQUEST);
 			Set<Role> userRoles = userService.findByUsername(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies()))).getRoles();
 			boolean canCreate = false;

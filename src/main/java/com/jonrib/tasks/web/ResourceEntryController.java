@@ -98,7 +98,7 @@ public class ResourceEntryController {
 	@PostMapping(value = "/resourceEntries")
 	public ResponseEntity<String> postEntry(@RequestBody String entryJson, HttpServletRequest request){
 		try {
-			if (securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())) == "anonymousUser")
+			if (securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())).equals("anonymousUser"))
 				return new ResponseEntity<String>("You need to be logged in to create entries", HttpStatus.BAD_REQUEST);
 			ResourceEntry newEntry = mapper.readValue(entryJson, ResourceEntry.class);
 			Set<User> author = new HashSet<User>();
