@@ -15,12 +15,12 @@ public class WebApplication extends SpringBootServletInitializer {
     }
 
     public static void main(String[] args) throws Exception {
-    	
+    	/*
     	SpringApplication app = new SpringApplication(WebApplication.class);
         app.setDefaultProperties(Collections
           .singletonMap("server.port", "8081"));
         app.run(args);
-    	
-        //SpringApplication.run(WebApplication.class, args);
+    	*/
+        SpringApplication.run(WebApplication.class, args);
     }
 }
