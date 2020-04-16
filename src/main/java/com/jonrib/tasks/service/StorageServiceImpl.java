@@ -20,9 +20,9 @@ public class StorageServiceImpl implements StorageService {
 	}
 	
 	@Override
-	public Resource loadAsResource(byte[] bytes) {
+	public Resource loadAsResource(byte[] bytes, String extension) {
 		try {
-			File actualFile = new File("temp");
+			File actualFile = new File(extension);
 			OutputStream os = new FileOutputStream(actualFile);
 		    os.write(bytes);
 			Resource resource = new FileSystemResource(actualFile);

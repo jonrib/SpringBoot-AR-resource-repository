@@ -11,7 +11,7 @@ public interface StorageService {
 
 	void init();
 
-	Resource loadAsResource(byte[] bytes);
+	Resource loadAsResource(byte[] bytes, String extension);
 	
 
 }

@@ -81,7 +81,7 @@ public class PreviewImageController {
 		if (file.isEmpty()) {
 			throw new BadResourceFileForEntryException();
 		}
-		Resource actualFile = storageService.loadAsResource(file.get().getData());
+		Resource actualFile = storageService.loadAsResource(file.get().getData(), file.get().getFileName());
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
 				"attachment; filename=\"" + actualFile.getFilename() + "\"").body(actualFile);
 	}
