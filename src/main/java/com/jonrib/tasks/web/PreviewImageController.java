@@ -81,7 +81,7 @@ public class PreviewImageController {
 		if (file.isEmpty()) {
 			throw new BadResourceFileForEntryException();
 		}
-		Resource actualFile = storageService.loadAsResource(file.get().getFilePath());
+		Resource actualFile = storageService.loadAsResource(file.get().getData());
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
 				"attachment; filename=\"" + actualFile.getFilename() + "\"").body(actualFile);
 	}
@@ -116,7 +116,7 @@ public class PreviewImageController {
 				fileEntry.setFileName(file.getOriginalFilename());
 				fileEntry.setFilePath(request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId()+"/"+file.getOriginalFilename());
 				entry.get().getImages().add(fileEntry);
-				storageService.store(file, request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId());
+				fileEntry.setData(file.getBytes());
 				fileEntry.setSize(file.getSize()+"");
 				previewImageRepository.save(fileEntry);
 				History edited = new History();
@@ -143,7 +143,6 @@ public class PreviewImageController {
 		}
 		try {
 			entry.get().getFiles().clear();
-			storageService.deleteAll(request.getServletContext().getRealPath(uploadPath));
 			for (PreviewImage resFile : entry.get().getImages()) {
 				previewImageRepository.delete(resFile);
 			}
@@ -175,7 +174,6 @@ public class PreviewImageController {
 		}
 		try {
 			entry.get().getImages().remove(file.get());
-			storageService.delete(file.get().getFilePath());
 			previewImageRepository.delete(file.get());
 			History edited = new History();
 			edited.setAction("Removed preview image file");

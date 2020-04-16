@@ -66,12 +66,6 @@ public class ResourceFileController {
 		}else {
 			return new ResponseEntity<String>("Not allowed to read resource entry files", HttpStatus.BAD_REQUEST);
 		}
-		/*
-		model.addAttribute("files", storageService.loadAll().map(
-				path -> MvcUriComponentsBuilder.fromMethodName(ResourceFileController.class,
-						"serveFile", path.getFileName().toString()).build().toUri().toString())
-				.collect(Collectors.toList()));
-		*/
 	}
 
 	@GetMapping("/resourceEntries/{eid:.+}/files/{id:.+}")
@@ -87,7 +81,7 @@ public class ResourceFileController {
 		if (file.isEmpty()) {
 			throw new BadResourceFileForEntryException();
 		}
-		Resource actualFile = storageService.loadAsResource(file.get().getFilePath());
+		Resource actualFile = storageService.loadAsResource(file.get().getData());
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
 				"attachment; filename=\"" + actualFile.getFilename() + "\"").body(actualFile);
 	}
@@ -122,7 +116,7 @@ public class ResourceFileController {
 				fileEntry.setFileName(file.getOriginalFilename());
 				fileEntry.setFilePath(request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId()+"/"+file.getOriginalFilename());
 				entry.get().getFiles().add(fileEntry);
-				storageService.store(file, request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId());
+				fileEntry.setData(file.getBytes());
 				fileEntry.setSize(file.getSize()+"");
 				fileEntry.setType(file.getOriginalFilename().split(".").length > 1 ? file.getOriginalFilename().split(".")[1] : "");
 				resourceFileRepository.save(fileEntry);
@@ -150,7 +144,6 @@ public class ResourceFileController {
 		}
 		try {
 			entry.get().getFiles().clear();
-			storageService.deleteAll(request.getServletContext().getRealPath(uploadPath));
 			for (ResourceFile resFile : entry.get().getFiles()) {
 				resourceFileRepository.delete(resFile);
 			}
@@ -182,7 +175,6 @@ public class ResourceFileController {
 		}
 		try {
 			entry.get().getFiles().remove(file.get());
-			storageService.delete(file.get().getFilePath());
 			resourceFileRepository.delete(file.get());
 			History edited = new History();
 			edited.setAction("Removed resource file");

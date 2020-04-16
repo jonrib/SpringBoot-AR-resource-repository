@@ -11,17 +11,7 @@ public interface StorageService {
 
 	void init();
 
-	void store(MultipartFile file, String storagePath) throws IllegalStateException, IOException;
-
-	Stream<Path> loadAll();
-
-	Path load(String filename);
-
-	void deleteAll(String dir);
-	
-	void delete(String path);
-
-	Resource loadAsResource(String path);
+	Resource loadAsResource(byte[] bytes);
 	
 
 }

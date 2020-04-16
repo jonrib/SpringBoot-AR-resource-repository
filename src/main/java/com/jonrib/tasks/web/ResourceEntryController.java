@@ -132,8 +132,6 @@ public class ResourceEntryController {
 				return new ResponseEntity<String>("Entry not found", HttpStatus.NOT_FOUND);
 			if (!resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies())))
 				return new ResponseEntity<String>("You're not an editor for entry", HttpStatus.NOT_FOUND);
-			storageService.deleteAll(request.getServletContext().getRealPath("/uploadedResourceFiles/")+entry.get().getId());
-			storageService.deleteAll(request.getServletContext().getRealPath("/uploadedPreviewImages/")+entry.get().getId());
 			resourceEntryService.delete(entry.get());
 			return new ResponseEntity<String>("success", HttpStatus.OK);
 		}catch (Exception e) {
