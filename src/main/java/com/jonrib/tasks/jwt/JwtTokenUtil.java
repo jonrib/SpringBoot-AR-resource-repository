@@ -28,7 +28,12 @@ public class JwtTokenUtil implements Serializable {
 	//retrieve username from jwt token
 	public String getUsernameFromToken(String token) {
 		try {
-			return getClaimFromToken(token, Claims::getSubject);
+			String username = getClaimFromToken(token, Claims::getSubject);
+			if (userService.findByUsername(username) == null) {
+				return "anonymousUser";
+			}else {
+				return username;
+			}
 		}catch(Exception e) {
 			return "anonymousUser";
 		}
