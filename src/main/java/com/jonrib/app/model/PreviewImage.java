@@ -4,7 +4,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "previews")
@@ -15,6 +18,10 @@ public class PreviewImage {
 	private String filePath;
 	private String fileName;
 	private String size;
+	@Lob
+	@JsonIgnore
+    private byte[] data;
+	
 	public Long getId() {
 		return id;
 	}
@@ -39,4 +46,11 @@ public class PreviewImage {
 	public void setSize(String size) {
 		this.size = size;
 	}
+	public byte[] getData() {
+		return data;
+	}
+	public void setData(byte[] data) {
+		this.data = data;
+	}
+	
 }
