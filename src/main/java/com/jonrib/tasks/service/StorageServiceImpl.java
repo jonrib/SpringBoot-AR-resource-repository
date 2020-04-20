@@ -12,30 +12,12 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class StorageServiceImpl implements StorageService {
 	@Override
-	public void init() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void store(MultipartFile file, String path) throws IllegalStateException, IOException {
 		File directory = new File(path);
 	    if (! directory.exists()){
 	        directory.mkdirs();
 	    }
 		file.transferTo(new File(path+"/"+file.getOriginalFilename()));
-	}
-
-	@Override
-	public Stream<Path> loadAll() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Path load(String filename) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

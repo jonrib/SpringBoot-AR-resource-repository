@@ -80,7 +80,7 @@ public class ResourceEntryCommentsController {
 			}
 			if (!isAdmin && !entry.get().getUserName().equals(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies()))))
 				return new ResponseEntity<String>("Only author or admin can delete comment", HttpStatus.BAD_REQUEST);
-			removeFromComments(resEntry.get().getComments(), entry.get());
+			//removeFromComments(resEntry.get().getComments(), entry.get());
 			resourceEntryService.save(resEntry.get());
 			commentService.delete(entry.get());
 			return new ResponseEntity<String>("success", HttpStatus.OK);

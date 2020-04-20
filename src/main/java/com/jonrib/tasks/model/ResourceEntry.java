@@ -32,14 +32,10 @@ public class ResourceEntry {
 	private Set<PreviewImage> images;
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private Set<ResourceFile> files;
-	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	private Set<Download> downloads;
 	@ManyToMany
 	private Set<User> editors;
 	@ManyToMany
 	private Set<User> readers;
-	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	private Set<Task> tasks;
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private Set<History> histories;
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -87,12 +83,6 @@ public class ResourceEntry {
 	public void setFiles(Set<ResourceFile> files) {
 		this.files = files;
 	}
-	public Set<Download> getDownloads() {
-		return downloads;
-	}
-	public void setDownloads(Set<Download> downloads) {
-		this.downloads = downloads;
-	}
 	public boolean isPrivate() {
 		return isPrivate;
 	}
@@ -116,12 +106,6 @@ public class ResourceEntry {
 	}
 	public void setAuthor(Set<User> author) {
 		this.author = author;
-	}
-	public Set<Task> getTasks() {
-		return tasks;
-	}
-	public void setTasks(Set<Task> tasks) {
-		this.tasks = tasks;
 	}
 	public Set<History> getHistories() {
 		return histories;

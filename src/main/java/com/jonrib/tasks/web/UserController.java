@@ -23,6 +23,7 @@ import com.jonrib.tasks.jwt.JwtTokenUtil;
 import com.jonrib.tasks.model.Role;
 import com.jonrib.tasks.model.User;
 import com.jonrib.tasks.service.RoleService;
+import com.jonrib.tasks.service.SecurityService;
 import com.jonrib.tasks.service.UserService;
 
 @RestController
@@ -34,10 +35,26 @@ public class UserController {
 
 	@Autowired
 	private RoleService roleService;
+	
+	@Autowired
+	SecurityService securityService;
 
-	private JwtTokenUtil util = new JwtTokenUtil();
-
-
+	private boolean isAdmin(HttpServletRequest request) {
+		String username = securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies()));
+		boolean isAdmin = false;
+		if (username.equals("anonymousUser")) {
+			return false;
+		}else {
+			User user = userService.findByUsername(username);
+			for (Role role : user.getRoles()) {
+				if (role.getName().equals("Admin")) {
+					isAdmin = true;
+					break;
+				}
+			}
+		}
+		return isAdmin;
+	}
 
 	@GetMapping(value = "/users")
 	public ResponseEntity<String> getAllUsers(){
@@ -64,8 +81,23 @@ public class UserController {
 	public ResponseEntity<String> postUser(@RequestBody String userJson){
 		try {
 			User newUser = mapper.readValue(userJson, User.class);
+			
+			newUser.setRoles(new HashSet<Role>());
+			
 			if (userService.findByUsername(newUser.getUsername()) != null)
 				return new ResponseEntity<String>("Already exists", HttpStatus.BAD_REQUEST);
+			
+			if (newUser.getUsername().length() < 6 || newUser.getUsername().length() > 32) {
+				return new ResponseEntity<String>("Username size is incorrect.", HttpStatus.BAD_REQUEST);
+	        }
+			
+	        if (newUser.getPassword().length() < 8 || newUser.getPassword().length() > 32) {
+	        	return new ResponseEntity<String>("Password size is incorrect.", HttpStatus.BAD_REQUEST);
+	        }
+
+	        if (!newUser.getPasswordConfirm().equals(newUser.getPassword())) {
+	        	return new ResponseEntity<String>("Confirm password is incorrect.", HttpStatus.BAD_REQUEST);
+	        }
 
 			userService.save(newUser);
 		}catch (Exception e) {
@@ -77,29 +109,13 @@ public class UserController {
 	@DeleteMapping(value = "/users/*")
 	public ResponseEntity<String> deleteUser(HttpServletRequest request){
 		try {
-			Cookie[] cookies = request.getCookies();
-			String userName = "";
-			for (int i = 0; i < cookies.length; i++) {
-				if (cookies[i].getName().equals("JWT")) {
-					userName = cookies[i].getValue().replace("Bearer", "");
-					System.out.println("jwt cookie " + userName);
-				}
+			if (!isAdmin(request)) {
+				return new ResponseEntity<String>("Only for admin.", HttpStatus.FORBIDDEN);
 			}
-
-			User curr = userService.findByUsername(util.getUsernameFromToken(userName));
-			boolean auth = false;
-			for (Role role : curr.getRoles()) {
-				if (role.getName().equals("admin")) {
-					auth= true;
-				}
-			}
-			if (!auth) {
-				return new ResponseEntity<String>("Unauthorized", HttpStatus.FORBIDDEN);
-			}
+			
 			User usr = userService.findById(Long.parseLong(request.getRequestURI().substring(request.getRequestURI().lastIndexOf("/")+1, request.getRequestURI().length())));
 			usr.setRoles(null);
-
-
+			
 			userService.delete(usr);
 			return new ResponseEntity<String>("success", HttpStatus.OK);
 		}catch (Exception e) {
@@ -108,14 +124,16 @@ public class UserController {
 	}
 
 	@PutMapping(value = "/users/*")
-	public ResponseEntity<String> patchUser(HttpServletRequest request, @RequestBody String userJson){
+	public ResponseEntity<String> putUser(HttpServletRequest request, @RequestBody String userJson){
 		try {
+			if (!isAdmin(request)) {
+				return new ResponseEntity<String>("Only for admin.", HttpStatus.FORBIDDEN);
+			}
+			
 			User user = userService.findById(Long.parseLong(request.getRequestURI().substring(request.getRequestURI().lastIndexOf("/")+1, request.getRequestURI().length())));
 			if (user == null)
 				throw new Exception("User not found");
-			//User newUser = mapper.readValue(userJson, User.class);
 			JsonNode root = mapper.readTree(userJson);
-			//User newUser = mapper.treeToValue(root.at("/data"), User.class);
 			Set<Role> roles = new HashSet<Role>();
 			for (Iterator<JsonNode> i = root.at("/users/roles").elements(); i.hasNext();) {
 				String name = i.next().asText();
@@ -124,13 +142,7 @@ public class UserController {
 					throw new Exception("Role not found " + name);
 				roles.add(role);
 			}
-			//user.setGroup(newUser.getGroup());
-			//user.setProjects(newUser.getProjects());
-			//user.setTasks(newUser.getTasks());
 			user.setRoles(roles);
-			//user.setPassword(newUser.getPassword());
-			//user.setPasswordConfirm(newUser.getPasswordConfirm());
-			//user.setUsername(newUser.getUsername());
 			userService.update(user);
 			return new ResponseEntity<String>("success", HttpStatus.OK);
 		}catch (Exception e) {

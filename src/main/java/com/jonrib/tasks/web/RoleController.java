@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jonrib.tasks.model.Role;
+import com.jonrib.tasks.model.User;
 import com.jonrib.tasks.service.RoleService;
+import com.jonrib.tasks.service.SecurityService;
 import com.jonrib.tasks.service.UserService;
 
 @RestController
@@ -25,11 +27,35 @@ public class RoleController {
 	@Autowired
 	UserService userService;
 	
+	@Autowired
+	SecurityService securityService;
+	
 	private ObjectMapper mapper = new ObjectMapper();
+	
+	private boolean isAdmin(HttpServletRequest request) {
+		String username = securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies()));
+		boolean isAdmin = false;
+		if (username.equals("anonymousUser")) {
+			return false;
+		}else {
+			User user = userService.findByUsername(username);
+			for (Role role : user.getRoles()) {
+				if (role.getName().equals("Admin")) {
+					isAdmin = true;
+					break;
+				}
+			}
+		}
+		return isAdmin;
+	}
 
 	@GetMapping(value = "/roles")
-	public ResponseEntity<String> getAllTasks(){
+	public ResponseEntity<String> getAllRoles(HttpServletRequest request){
 		try {
+			if (!isAdmin(request)) {
+				return new ResponseEntity<String>("Only for admin.", HttpStatus.FORBIDDEN);
+			}
+				
 			return new ResponseEntity<String>(mapper.writeValueAsString(roleService.findAll()), HttpStatus.OK);
 		}catch (Exception e) {
 			return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
@@ -37,8 +63,12 @@ public class RoleController {
 	}
 
 	@GetMapping(value = "/roles/*")
-	public ResponseEntity<String> getProject(HttpServletRequest request){
+	public ResponseEntity<String> getRole(HttpServletRequest request){
 		try {
+			if (!isAdmin(request)) {
+				return new ResponseEntity<String>("Only for admin.", HttpStatus.FORBIDDEN);
+			}
+			
 			Role role = roleService.findById(Long.parseLong(request.getRequestURI().substring(request.getRequestURI().lastIndexOf("/")+1, request.getRequestURI().length())));
 			if (role == null)
 				throw new Exception("Role not found");
@@ -49,23 +79,15 @@ public class RoleController {
 	}
 
 	@PostMapping(value = "/roles")
-	public ResponseEntity<String> postProject(@RequestBody String roleJson){
+	public ResponseEntity<String> postRole(@RequestBody String roleJson, HttpServletRequest request){
+		if (!isAdmin(request)) {
+			return new ResponseEntity<String>("Only for admin.", HttpStatus.FORBIDDEN);
+		}
+		
 		try {
-			//JsonNode root = mapper.readTree(roleJson);
 			Role newRole = mapper.readValue(roleJson, Role.class);
 			if (roleService.findByName(newRole.getName()) != null)
-				 throw new Exception("Role already exists");
-			/*
-			Set<User> users = new HashSet<User>();
-			for (Iterator<JsonNode> i = root.at("/users/users").elements(); i.hasNext();) {
-				String username = i.next().asText();
-				User usr = userService.findByUsername(username);
-				if (usr == null)
-					throw new Exception("User not found " + username);
-				users.add(usr);
-			 }
-			 */
-			//newRole.setUsers(users);
+				return new ResponseEntity<String>("Role already exists", HttpStatus.BAD_REQUEST);
 			roleService.save(newRole);
 		}catch (Exception e) {
 			return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
@@ -74,37 +96,14 @@ public class RoleController {
 	}
 
 	@DeleteMapping(value = "/roles/*")
-	public ResponseEntity<String> deleteProject(HttpServletRequest request){
+	public ResponseEntity<String> deleteRole(HttpServletRequest request){
+		if (!isAdmin(request)) {
+			return new ResponseEntity<String>("Only for admin.", HttpStatus.FORBIDDEN);
+		}
+		
 		try {
 			Role role = roleService.findById(Long.parseLong(request.getRequestURI().substring(request.getRequestURI().lastIndexOf("/")+1, request.getRequestURI().length())));
 			roleService.delete(role);
-			return new ResponseEntity<String>("success", HttpStatus.OK);
-		}catch (Exception e) {
-			return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
-		}
-	}
-
-	@PutMapping(value = "/roles/*")
-	public ResponseEntity<String> patchProject(HttpServletRequest request, @RequestBody String taskJson){
-		try {
-			Role role = roleService.findById(Long.parseLong(request.getRequestURI().substring(request.getRequestURI().lastIndexOf("/")+1, request.getRequestURI().length())));
-			if (role == null)
-				throw new Exception("Role not found");
-			//Role newRole = mapper.readValue(taskJson, Role.class);
-			/*
-			Role newRole = mapper.treeToValue(root.at("/data"), Role.class);
-			Set<User> users = new HashSet<User>();
-			for (Iterator<JsonNode> i = root.at("/users/users").elements(); i.hasNext();) {
-				String username = i.next().asText();
-				User usr = userService.findByUsername(username);
-				if (usr == null)
-					throw new Exception("User not found " + username);
-				users.add(usr);
-			 }
-			role.setName(newRole.getName());
-			*/
-			//role.setUsers(users);
-			roleService.save(role);
 			return new ResponseEntity<String>("success", HttpStatus.OK);
 		}catch (Exception e) {
 			return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);

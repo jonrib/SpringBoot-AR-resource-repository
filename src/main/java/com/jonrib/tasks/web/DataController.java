@@ -35,9 +35,6 @@ public class DataController{
 	private ObjectMapper mapper = new ObjectMapper();
 
 	@Autowired
-	private BCryptPasswordEncoder bCryptPasswordEncoder;
-
-	@Autowired
 	private UserService userService;
 
 	@Autowired
@@ -61,7 +58,6 @@ public class DataController{
 		if (cookies == null)
 			return "";
 		for (Cookie cookie : cookies) {
-			System.out.println("here " + cookie.getName());
 			if (cookie.getName().equals("JWT")) {
 				return "Bearer " + cookie.getValue();
 			}

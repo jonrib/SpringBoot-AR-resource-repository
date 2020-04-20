@@ -23,12 +23,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jonrib.tasks.model.Download;
 import com.jonrib.tasks.model.History;
 import com.jonrib.tasks.model.PreviewImage;
 import com.jonrib.tasks.model.ResourceEntry;
 import com.jonrib.tasks.model.ResourceFile;
-import com.jonrib.tasks.model.Task;
 import com.jonrib.tasks.model.User;
 import com.jonrib.tasks.repository.HistoryRepository;
 import com.jonrib.tasks.service.ResourceEntryService;
@@ -87,7 +85,7 @@ public class ResourceEntryController {
 			if (!entry.isPresent())
 				return new ResponseEntity<String>("Entry not found", HttpStatus.NOT_FOUND);
 			if (!resourceEntryService.canRead(entry.get(),DataController.getJWTCookie(request.getCookies())) && !resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies())))
-				return new ResponseEntity<String>("Can't read entry", HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<String>("Can't read entry. Contact author at: "+entry.get().getAuthor().stream().findFirst().get().getEmail(), HttpStatus.BAD_REQUEST);
 			return new ResponseEntity<String>(mapper.writeValueAsString(entry.get()), HttpStatus.OK);
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -104,12 +102,10 @@ public class ResourceEntryController {
 			Set<User> author = new HashSet<User>();
 			author.add(userService.findByUsername(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies()))));
 			newEntry.setAuthor(author);
-			newEntry.setDownloads(new HashSet<Download>());
 			newEntry.setEditors(new HashSet<User>());
 			newEntry.setFiles(new HashSet<ResourceFile>());
 			newEntry.setImages(new HashSet<PreviewImage>());
 			newEntry.setReaders(new HashSet<User>());
-			newEntry.setTasks(new HashSet<Task>());
 			newEntry.setHistories(new HashSet<History>());
 			History created = new History();
 			created.setAction("Created");
