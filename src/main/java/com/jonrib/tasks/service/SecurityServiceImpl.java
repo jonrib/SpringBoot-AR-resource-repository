@@ -29,8 +29,16 @@ public class SecurityServiceImpl implements SecurityService{
 	private JwtTokenUtil jwtTokenUtil;
     
     private static final Logger logger = LoggerFactory.getLogger(SecurityServiceImpl.class);
+    
+    public SecurityServiceImpl() { }
 
-    @Override
+    public SecurityServiceImpl(UserDetailsServiceImpl userDetails, AuthenticationManager authenticationManager2, JwtTokenUtil jwtTokenUtil) {
+		this.authenticationManager = authenticationManager2;
+		this.userDetailsService = userDetails;
+		this.jwtTokenUtil = jwtTokenUtil;
+	}
+
+	@Override
     public String findLoggedInUsername(String token) {
 		if (token != null && token.startsWith("Bearer ")) {
 			String jwtToken = token.substring(7);

@@ -23,6 +23,12 @@ public class JwtTokenUtil implements Serializable {
 	@Autowired
 	UserService userService;
 	
+	public JwtTokenUtil() { }
+	
+	public JwtTokenUtil(UserService userService) {
+		this.userService = userService;
+	}
+	
 	//@Value("${jwt.secret}")
 	private final String secret = "JWTsecretKey2020KTU";
 	//retrieve username from jwt token

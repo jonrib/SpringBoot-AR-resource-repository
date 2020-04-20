@@ -14,6 +14,12 @@ public class RoleServiceImpl implements RoleService{
 	@Autowired
 	private RoleRepository roleRepository;
 	
+	public RoleServiceImpl() { }
+	
+	public RoleServiceImpl(RoleRepository roleRepository2) {
+		this.roleRepository = roleRepository2;
+	}
+
 	@Override
 	public Role findById(Long id) {
 		Optional<Role> role = roleRepository.findById(id);

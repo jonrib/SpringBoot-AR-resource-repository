@@ -15,6 +15,12 @@ public class CommentServiceImpl implements CommentService {
 	@Autowired
 	private CommentRepository commentRepository;
 
+	public CommentServiceImpl() { }
+	
+	public CommentServiceImpl(CommentRepository commentRepository2) {
+		this.commentRepository = commentRepository2;
+	}
+
 	@Override
 	public Comment save(Comment entity) {
 		return commentRepository.save(entity);
@@ -24,16 +30,6 @@ public class CommentServiceImpl implements CommentService {
 	public void delete(Comment entity) {
 		//deleteReplies(entity.getReplies());
 		commentRepository.delete(entity);
-	}
-	
-	private void deleteReplies(Set<Comment> comments) {
-		if (comments == null) {
-			return;
-		}
-		for (Comment comment : comments) {
-			deleteReplies(comment.getReplies());
-			commentRepository.delete(comment);
-		}
 	}
 
 	@Override

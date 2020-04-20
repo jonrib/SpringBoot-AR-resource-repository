@@ -1,7 +1,6 @@
 package com.jonrib.tasks.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -10,42 +9,28 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.jonrib.tasks.model.Comment;
-import com.jonrib.tasks.model.Download;
-import com.jonrib.tasks.model.History;
-import com.jonrib.tasks.model.PreviewImage;
 import com.jonrib.tasks.model.ResourceEntry;
-import com.jonrib.tasks.model.ResourceFile;
 import com.jonrib.tasks.model.Role;
 import com.jonrib.tasks.model.User;
-import com.jonrib.tasks.repository.DownloadRepository;
-import com.jonrib.tasks.repository.HistoryRepository;
-import com.jonrib.tasks.repository.PreviewImageRepository;
 import com.jonrib.tasks.repository.ResourceEntryRepository;
-import com.jonrib.tasks.repository.ResourceFileRepository;
 
 @Service
 public class ResourceEntryServiceImpl implements ResourceEntryService {
 	@Autowired
 	private ResourceEntryRepository resourceEntryRepository;
 	@Autowired
-	private StorageService storageService;
-	@Autowired
-	private ResourceFileRepository resourceFileRepository;
-	@Autowired
-	private DownloadRepository downloadRepository;
-	@Autowired
-	private PreviewImageRepository previewImageRepository;
-	@Autowired
 	private SecurityService securityService;
 	@Autowired
 	private UserService userService;
-	@Autowired
-	private HistoryRepository historyRepository;
-	@Autowired
-	private CommentService commentService;
 
+	public ResourceEntryServiceImpl() { }
 	
+	public ResourceEntryServiceImpl(ResourceEntryRepository resourceEntryRepository2, SecurityService securityService2,
+			UserService userService2) {
+		this.resourceEntryRepository = resourceEntryRepository2;
+		this.securityService = securityService2;
+		this.userService = userService2;
+	}
 	
 	@Override
 	public List<ResourceEntry> findAll() {
