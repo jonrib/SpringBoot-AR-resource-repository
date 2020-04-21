@@ -1,4 +1,4 @@
-package tests;
+package tests.intergration;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -138,6 +138,18 @@ public class UserControllerTests {
 	            .cookie(JWT)
 	            .content("{ \"users\": {\"roles\": [\"Admin\"]}}"))
 	            .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
+		
+		mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/users/"+userService.findByUsername("testas123").getId())
+	            .contentType("application/json")
+	            .cookie(JWT)
+	            .content("{ \"users\": {\"roles\": [\"Randommm\"]}}"))
+	            .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().is(400));
+		
+		mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/users/"+56165156)
+	            .contentType("application/json")
+	            .cookie(JWT)
+	            .content("{ \"users\": {\"roles\": [\"Admin\"]}}"))
+	            .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().is(400));
 		
 		
 		roleService.delete(roleService.findByName("Admin"));
