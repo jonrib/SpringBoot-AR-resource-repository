@@ -64,14 +64,8 @@ public class ResourceFileController {
 		if (resourceEntryService.canRead(entry.get(),DataController.getJWTCookie(request.getCookies())) || resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies()))) {
 			return new ResponseEntity<String>(mapper.writeValueAsString(entry.get().getFiles()), HttpStatus.OK);
 		}else {
-			return new ResponseEntity<String>("Not allowed to read resource entry files", HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<String>("Not allowed to read resource entry files", HttpStatus.FORBIDDEN);
 		}
-		/*
-		model.addAttribute("files", storageService.loadAll().map(
-				path -> MvcUriComponentsBuilder.fromMethodName(ResourceFileController.class,
-						"serveFile", path.getFileName().toString()).build().toUri().toString())
-				.collect(Collectors.toList()));
-		*/
 	}
 
 	@GetMapping("/resourceEntries/{eid:.+}/files/{id:.+}")
@@ -103,7 +97,7 @@ public class ResourceFileController {
 	}
 	@ExceptionHandler(ResourceEntryNoAccessException.class)
 	public ResponseEntity<String> handleStorageFileNotFound(ResourceEntryNoAccessException exc) {
-		return new ResponseEntity<String>("Not allowed to read resource entry files", HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<String>("Not allowed to read resource entry files", HttpStatus.FORBIDDEN);
 	}
 	
 

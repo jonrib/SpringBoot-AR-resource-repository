@@ -85,7 +85,7 @@ public class ResourceEntryController {
 			if (!entry.isPresent())
 				return new ResponseEntity<String>("Entry not found", HttpStatus.NOT_FOUND);
 			if (!resourceEntryService.canRead(entry.get(),DataController.getJWTCookie(request.getCookies())) && !resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies())))
-				return new ResponseEntity<String>("Can't read entry. Contact author at: "+entry.get().getAuthor().stream().findFirst().get().getEmail(), HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<String>("Can't read entry. Contact author at: "+entry.get().getAuthor().stream().findFirst().get().getEmail(), HttpStatus.FORBIDDEN);
 			return new ResponseEntity<String>(mapper.writeValueAsString(entry.get()), HttpStatus.OK);
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -97,7 +97,7 @@ public class ResourceEntryController {
 	public ResponseEntity<String> postEntry(@RequestBody String entryJson, HttpServletRequest request){
 		try {
 			if (securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())).equals("anonymousUser"))
-				return new ResponseEntity<String>("You need to be logged in to create entries", HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<String>("You need to be logged in to create entries", HttpStatus.FORBIDDEN);
 			ResourceEntry newEntry = mapper.readValue(entryJson, ResourceEntry.class);
 			Set<User> author = new HashSet<User>();
 			author.add(userService.findByUsername(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies()))));
@@ -113,11 +113,10 @@ public class ResourceEntryController {
 			created.setUserName(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())));
 			historyRepository.save(created);
 			newEntry.getHistories().add(created);
-			resourceEntryService.save(newEntry);
+			return new ResponseEntity<String>(mapper.writeValueAsString(resourceEntryService.save(newEntry)), HttpStatus.OK);
 		}catch (Exception e) {
 			return new ResponseEntity<String>(e.toString(), HttpStatus.BAD_REQUEST);
 		}
-		return new ResponseEntity<String>("success", HttpStatus.OK);
 	}
 
 	@DeleteMapping(value = "/resourceEntries/*")
@@ -127,7 +126,7 @@ public class ResourceEntryController {
 			if (entry.isEmpty())
 				return new ResponseEntity<String>("Entry not found", HttpStatus.NOT_FOUND);
 			if (!resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies())))
-				return new ResponseEntity<String>("You're not an editor for entry", HttpStatus.NOT_FOUND);
+				return new ResponseEntity<String>("You're not an editor for entry", HttpStatus.FORBIDDEN);
 			storageService.deleteAll(request.getServletContext().getRealPath("/uploadedResourceFiles/")+entry.get().getId());
 			storageService.deleteAll(request.getServletContext().getRealPath("/uploadedPreviewImages/")+entry.get().getId());
 			resourceEntryService.delete(entry.get());
@@ -138,13 +137,13 @@ public class ResourceEntryController {
 	}
 
 	@PutMapping(value = "/resourceEntries/*")
-	public ResponseEntity<String> patchEntry(HttpServletRequest request, @RequestBody String entryJson){
+	public ResponseEntity<String> putEntry(HttpServletRequest request, @RequestBody String entryJson){
 		try {
 			Optional<ResourceEntry> entry = resourceEntryService.findById(Long.parseLong(request.getRequestURI().substring(request.getRequestURI().lastIndexOf("/")+1, request.getRequestURI().length())));
 			if (entry.isEmpty())
 				return new ResponseEntity<String>("Entry not found", HttpStatus.NOT_FOUND);
 			if (!resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies())))
-				return new ResponseEntity<String>("You're not an editor for entry", HttpStatus.NOT_FOUND);
+				return new ResponseEntity<String>("You're not an editor for entry", HttpStatus.FORBIDDEN);
 			ResourceEntry currEntry = entry.get();
 			JsonNode root = mapper.readTree(entryJson);
 			ResourceEntry newEntry = mapper.treeToValue(root.at("/entry"), ResourceEntry.class);
@@ -175,8 +174,7 @@ public class ResourceEntryController {
 			edited.setUserName(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())));
 			historyRepository.save(edited);
 			currEntry.getHistories().add(edited);
-			resourceEntryService.save(currEntry);
-			return new ResponseEntity<String>("success", HttpStatus.OK);
+			return new ResponseEntity<String>(mapper.writeValueAsString(resourceEntryService.save(currEntry)), HttpStatus.OK);
 		}catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<String>(e.toString(), HttpStatus.BAD_REQUEST);

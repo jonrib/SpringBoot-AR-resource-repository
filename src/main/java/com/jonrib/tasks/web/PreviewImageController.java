@@ -64,7 +64,7 @@ public class PreviewImageController {
 		if (resourceEntryService.canRead(entry.get(),DataController.getJWTCookie(request.getCookies())) || resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies()))) {
 			return new ResponseEntity<String>(mapper.writeValueAsString(entry.get().getImages()), HttpStatus.OK);
 		}else {
-			return new ResponseEntity<String>("Not allowed to read resource entry files", HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<String>("Not allowed to read resource entry files", HttpStatus.FORBIDDEN);
 		}
 	}
 
@@ -97,7 +97,7 @@ public class PreviewImageController {
 	}
 	@ExceptionHandler(ResourceEntryNoAccessException.class)
 	public ResponseEntity<String> handleStorageFileNotFound(ResourceEntryNoAccessException exc) {
-		return new ResponseEntity<String>("Not allowed to read resource entry files", HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<String>("Not allowed to read resource entry files", HttpStatus.FORBIDDEN);
 	}
 	
 

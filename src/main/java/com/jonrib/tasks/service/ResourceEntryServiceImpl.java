@@ -55,11 +55,17 @@ public class ResourceEntryServiceImpl implements ResourceEntryService {
 	public boolean canRead(ResourceEntry entity, String token) {
 		if (!entity.isPrivate())
 			return true;
-		return (entity.isPrivate() && entity.getReaders().contains(userService.findByUsername(securityService.findLoggedInUsername(token)))) || entity.getAuthor().contains(userService.findByUsername(securityService.findLoggedInUsername(token)));
+		if (token.equals(""))
+			return false;
+		String actualUsername = securityService.findLoggedInUsername(token);		
+		return (entity.isPrivate() && entity.getReaders().stream().anyMatch(x -> x.getUsername().equals(actualUsername))) || entity.getAuthor().stream().anyMatch(x -> x.getUsername().equals(actualUsername));
 	}
 	@Override
 	public boolean canEdit(ResourceEntry entity, String token) {
-		User user = userService.findByUsername(securityService.findLoggedInUsername(token));
+		if (token.equals(""))
+			return false;
+		String username = securityService.findLoggedInUsername(token);
+		User user = userService.findByUsername(username);
 		Set<Role> userRoles = user != null ? user.getRoles() : new HashSet<Role>();
 		boolean isAdmin = false;
 		for (Role role : userRoles) {
@@ -68,7 +74,7 @@ public class ResourceEntryServiceImpl implements ResourceEntryService {
 				break;
 			}
 		}
-		return isAdmin || entity.getAuthor().contains(userService.findByUsername(securityService.findLoggedInUsername(token))) || entity.getEditors().contains(userService.findByUsername(securityService.findLoggedInUsername(token)));
+		return isAdmin || entity.getAuthor().stream().anyMatch(x -> x.getUsername().equals(username)) || entity.getEditors().stream().anyMatch(x -> x.getUsername().equals(username));
 	}
 	@Override
 	public List<ResourceEntry> findByCategory(String category) {

@@ -1,4 +1,4 @@
-package tests;
+package tests.intergration;
 
 import java.util.HashSet;
 import java.util.Set;
