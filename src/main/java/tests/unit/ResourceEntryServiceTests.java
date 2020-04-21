@@ -16,18 +16,18 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import com.jonrib.tasks.model.Comment;
-import com.jonrib.tasks.model.ResourceEntry;
-import com.jonrib.tasks.model.Role;
-import com.jonrib.tasks.model.User;
-import com.jonrib.tasks.repository.CommentRepository;
-import com.jonrib.tasks.repository.ResourceEntryRepository;
-import com.jonrib.tasks.service.CommentService;
-import com.jonrib.tasks.service.CommentServiceImpl;
-import com.jonrib.tasks.service.ResourceEntryService;
-import com.jonrib.tasks.service.ResourceEntryServiceImpl;
-import com.jonrib.tasks.service.SecurityService;
-import com.jonrib.tasks.service.UserService;
+import com.jonrib.app.model.Comment;
+import com.jonrib.app.model.ResourceEntry;
+import com.jonrib.app.model.Role;
+import com.jonrib.app.model.User;
+import com.jonrib.app.repository.CommentRepository;
+import com.jonrib.app.repository.ResourceEntryRepository;
+import com.jonrib.app.service.CommentService;
+import com.jonrib.app.service.CommentServiceImpl;
+import com.jonrib.app.service.ResourceEntryService;
+import com.jonrib.app.service.ResourceEntryServiceImpl;
+import com.jonrib.app.service.SecurityService;
+import com.jonrib.app.service.UserService;
 
 public class ResourceEntryServiceTests {
 	private final ResourceEntryRepository resourceEntryRepository = Mockito.mock(ResourceEntryRepository.class);

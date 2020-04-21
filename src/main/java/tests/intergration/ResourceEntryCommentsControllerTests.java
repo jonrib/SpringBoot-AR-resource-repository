@@ -14,17 +14,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jonrib.tasks.WebApplication;
-import com.jonrib.tasks.model.Comment;
-import com.jonrib.tasks.model.ResourceEntry;
-import com.jonrib.tasks.model.Role;
-import com.jonrib.tasks.model.User;
-import com.jonrib.tasks.repository.HistoryRepository;
-import com.jonrib.tasks.service.ResourceEntryService;
-import com.jonrib.tasks.service.RoleService;
-import com.jonrib.tasks.service.SecurityService;
-import com.jonrib.tasks.service.StorageService;
-import com.jonrib.tasks.service.UserService;
+import com.jonrib.app.WebApplication;
+import com.jonrib.app.model.Comment;
+import com.jonrib.app.model.ResourceEntry;
+import com.jonrib.app.model.Role;
+import com.jonrib.app.model.User;
+import com.jonrib.app.repository.HistoryRepository;
+import com.jonrib.app.service.ResourceEntryService;
+import com.jonrib.app.service.RoleService;
+import com.jonrib.app.service.SecurityService;
+import com.jonrib.app.service.StorageService;
+import com.jonrib.app.service.UserService;
 
 @SpringBootTest(classes=WebApplication.class)
 @AutoConfigureMockMvc

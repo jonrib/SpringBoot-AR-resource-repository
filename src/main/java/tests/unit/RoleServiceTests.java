@@ -14,11 +14,11 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import com.jonrib.tasks.model.Comment;
-import com.jonrib.tasks.model.Role;
-import com.jonrib.tasks.repository.RoleRepository;
-import com.jonrib.tasks.service.RoleService;
-import com.jonrib.tasks.service.RoleServiceImpl;
+import com.jonrib.app.model.Comment;
+import com.jonrib.app.model.Role;
+import com.jonrib.app.repository.RoleRepository;
+import com.jonrib.app.service.RoleService;
+import com.jonrib.app.service.RoleServiceImpl;
 
 public class RoleServiceTests {
 	private final RoleRepository roleRepository = Mockito.mock(RoleRepository.class);
