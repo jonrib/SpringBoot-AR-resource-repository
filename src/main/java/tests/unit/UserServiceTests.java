@@ -14,12 +14,12 @@ import org.mockito.stubbing.Answer;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import com.jonrib.tasks.WebApplication;
-import com.jonrib.tasks.model.User;
-import com.jonrib.tasks.repository.UserRepository;
-import com.jonrib.tasks.service.ResourceEntryServiceImpl;
-import com.jonrib.tasks.service.UserService;
-import com.jonrib.tasks.service.UserServiceImpl;
+import com.jonrib.app.WebApplication;
+import com.jonrib.app.model.User;
+import com.jonrib.app.repository.UserRepository;
+import com.jonrib.app.service.ResourceEntryServiceImpl;
+import com.jonrib.app.service.UserService;
+import com.jonrib.app.service.UserServiceImpl;
 
 public class UserServiceTests {
 	private final UserRepository userRepository = Mockito.mock(UserRepository.class);

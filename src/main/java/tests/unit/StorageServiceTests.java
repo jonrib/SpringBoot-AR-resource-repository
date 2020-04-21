@@ -8,9 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.jonrib.tasks.WebApplication;
-import com.jonrib.tasks.service.StorageService;
-import com.jonrib.tasks.service.StorageServiceImpl;
+import com.jonrib.app.WebApplication;
+import com.jonrib.app.service.StorageService;
+import com.jonrib.app.service.StorageServiceImpl;
 
 public class StorageServiceTests {
 	private StorageService storageService = new StorageServiceImpl();

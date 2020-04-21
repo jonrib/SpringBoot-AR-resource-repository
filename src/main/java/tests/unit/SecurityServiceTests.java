@@ -24,14 +24,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import com.jonrib.tasks.WebApplication;
-import com.jonrib.tasks.jwt.JwtTokenUtil;
-import com.jonrib.tasks.model.Role;
-import com.jonrib.tasks.model.User;
-import com.jonrib.tasks.repository.UserRepository;
-import com.jonrib.tasks.service.SecurityServiceImpl;
-import com.jonrib.tasks.service.UserDetailsServiceImpl;
-import com.jonrib.tasks.service.UserServiceImpl;
+import com.jonrib.app.WebApplication;
+import com.jonrib.app.jwt.JwtTokenUtil;
+import com.jonrib.app.model.Role;
+import com.jonrib.app.model.User;
+import com.jonrib.app.repository.UserRepository;
+import com.jonrib.app.service.SecurityServiceImpl;
+import com.jonrib.app.service.UserDetailsServiceImpl;
+import com.jonrib.app.service.UserServiceImpl;
 
 public class SecurityServiceTests {
 	SecurityServiceImpl securityServiceImpl;

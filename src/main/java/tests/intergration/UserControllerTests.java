@@ -12,11 +12,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jonrib.tasks.WebApplication;
-import com.jonrib.tasks.model.Role;
-import com.jonrib.tasks.model.User;
-import com.jonrib.tasks.service.RoleService;
-import com.jonrib.tasks.service.UserService;
+import com.jonrib.app.WebApplication;
+import com.jonrib.app.model.Role;
+import com.jonrib.app.model.User;
+import com.jonrib.app.service.RoleService;
+import com.jonrib.app.service.UserService;
 
 @SpringBootTest(classes=WebApplication.class)
 @AutoConfigureMockMvc

@@ -36,13 +36,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jonrib.tasks.WebApplication;
-import com.jonrib.tasks.model.Role;
-import com.jonrib.tasks.model.User;
-import com.jonrib.tasks.repository.UserRepository;
-import com.jonrib.tasks.service.CommentServiceImpl;
-import com.jonrib.tasks.service.UserService;
-import com.jonrib.tasks.web.DataController;
+import com.jonrib.app.WebApplication;
+import com.jonrib.app.model.Role;
+import com.jonrib.app.model.User;
+import com.jonrib.app.repository.UserRepository;
+import com.jonrib.app.service.CommentServiceImpl;
+import com.jonrib.app.service.UserService;
+import com.jonrib.app.web.DataController;
 
 @SpringBootTest(classes=WebApplication.class)
 @AutoConfigureMockMvc

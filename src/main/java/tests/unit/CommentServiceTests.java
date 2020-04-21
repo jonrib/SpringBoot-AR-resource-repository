@@ -14,11 +14,11 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.jonrib.tasks.WebApplication;
-import com.jonrib.tasks.model.Comment;
-import com.jonrib.tasks.repository.CommentRepository;
-import com.jonrib.tasks.service.CommentService;
-import com.jonrib.tasks.service.CommentServiceImpl;
+import com.jonrib.app.WebApplication;
+import com.jonrib.app.model.Comment;
+import com.jonrib.app.repository.CommentRepository;
+import com.jonrib.app.service.CommentService;
+import com.jonrib.app.service.CommentServiceImpl;
 
 public class CommentServiceTests {
 	private final CommentRepository commentRepository = Mockito.mock(CommentRepository.class);
