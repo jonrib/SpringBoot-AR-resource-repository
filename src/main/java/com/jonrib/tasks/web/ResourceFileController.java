@@ -112,21 +112,23 @@ public class ResourceFileController {
 		}
 		try {
 			for (MultipartFile file : files) {
-				ResourceFile fileEntry = new ResourceFile();
-				fileEntry.setFileName(file.getOriginalFilename());
-				fileEntry.setFilePath(request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId()+"/"+file.getOriginalFilename());
-				entry.get().getFiles().add(fileEntry);
-				fileEntry.setData(file.getBytes());
-				fileEntry.setSize(file.getSize()+"");
-				fileEntry.setType(file.getOriginalFilename().split(".").length > 1 ? file.getOriginalFilename().split(".")[1] : "");
-				resourceFileRepository.save(fileEntry);
-				History edited = new History();
-				edited.setAction("Added resource file");
-				edited.setDate(new Date());
-				edited.setUserName(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())));
-				historyRepository.save(edited);
-				entry.get().getHistories().add(edited);
-				resourceEntryService.save(entry.get());
+				if (file.getOriginalFilename().indexOf(".exe") == -1) {
+					ResourceFile fileEntry = new ResourceFile();
+					fileEntry.setFileName(file.getOriginalFilename());
+					fileEntry.setFilePath(request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId()+"/"+file.getOriginalFilename());
+					entry.get().getFiles().add(fileEntry);
+					storageService.store(file, request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId());
+					fileEntry.setSize(file.getSize()+"");
+					fileEntry.setType(file.getOriginalFilename().split(".").length > 1 ? file.getOriginalFilename().split(".")[1] : "");
+					resourceFileRepository.save(fileEntry);
+					History edited = new History();
+					edited.setAction("Added resource file");
+					edited.setDate(new Date());
+					edited.setUserName(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())));
+					historyRepository.save(edited);
+					entry.get().getHistories().add(edited);
+					resourceEntryService.save(entry.get());
+				}
 			}
 		}catch (Exception e) {
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
