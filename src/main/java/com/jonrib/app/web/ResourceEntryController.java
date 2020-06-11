@@ -98,7 +98,8 @@ public class ResourceEntryController {
 		try {
 			if (securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())).equals("anonymousUser"))
 				return new ResponseEntity<String>("You need to be logged in to create entries", HttpStatus.FORBIDDEN);
-			ResourceEntry newEntry = mapper.readValue(entryJson, ResourceEntry.class);
+			JsonNode root = mapper.readTree(entryJson);
+			ResourceEntry newEntry = mapper.treeToValue(root.at("/entry"), ResourceEntry.class);
 			Set<User> author = new HashSet<User>();
 			author.add(userService.findByUsername(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies()))));
 			newEntry.setAuthor(author);
@@ -113,6 +114,22 @@ public class ResourceEntryController {
 			created.setUserName(securityService.findLoggedInUsername(DataController.getJWTCookie(request.getCookies())));
 			historyRepository.save(created);
 			newEntry.getHistories().add(created);
+			Set<User> readers = new HashSet<User>();
+			for (Iterator<JsonNode> i = root.at("/readers").elements(); i.hasNext();) {
+				String username = i.next().asText();
+				User usr = userService.findByUsername(username);
+				if (usr != null)
+					readers.add(usr);
+			}
+			Set<User> editors = new HashSet<User>();
+			for (Iterator<JsonNode> i = root.at("/editors").elements(); i.hasNext();) {
+				String username = i.next().asText();
+				User usr = userService.findByUsername(username);
+				if (usr != null)
+					editors.add(usr);
+			}
+			newEntry.setReaders(readers);
+			newEntry.setEditors(editors);
 			return new ResponseEntity<String>(mapper.writeValueAsString(resourceEntryService.save(newEntry)), HttpStatus.OK);
 		}catch (Exception e) {
 			return new ResponseEntity<String>(e.toString(), HttpStatus.BAD_REQUEST);
