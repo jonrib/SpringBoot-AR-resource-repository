@@ -116,8 +116,8 @@ public class ResourceFileController {
 					ResourceFile fileEntry = new ResourceFile();
 					fileEntry.setFileName(file.getOriginalFilename());
 					fileEntry.setFilePath(request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId()+"/"+file.getOriginalFilename());
+					fileEntry.setData(file.getBytes());
 					entry.get().getFiles().add(fileEntry);
-					storageService.store(file, request.getServletContext().getRealPath(uploadPath)+"/"+entry.get().getId());
 					fileEntry.setSize(file.getSize()+"");
 					fileEntry.setType(file.getOriginalFilename().split(".").length > 1 ? file.getOriginalFilename().split(".")[1] : "");
 					resourceFileRepository.save(fileEntry);

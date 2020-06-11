@@ -35,6 +35,7 @@ import com.jonrib.tasks.service.ResourceEntryService;
 import com.jonrib.tasks.service.SecurityService;
 import com.jonrib.tasks.service.StorageService;
 import com.jonrib.tasks.service.UserService;
+import com.jonrib.tasks.web.DataController;
 
 @Controller
 public class ResourceEntryController {
@@ -138,7 +139,6 @@ public class ResourceEntryController {
 		}catch (Exception e) {
 			return new ResponseEntity<String>(e.toString(), HttpStatus.BAD_REQUEST);
 		}
-		return new ResponseEntity<String>("success", HttpStatus.OK);
 	}
 
 	@DeleteMapping(value = "/resourceEntries/*")
@@ -147,7 +147,7 @@ public class ResourceEntryController {
 			Optional<ResourceEntry> entry = resourceEntryService.findById(Long.parseLong(request.getRequestURI().substring(request.getRequestURI().lastIndexOf("/")+1, request.getRequestURI().length())));
 			if (entry.isEmpty())
 				return new ResponseEntity<String>("Entry not found", HttpStatus.NOT_FOUND);
-			if (!resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies())))
+			if (!resourceEntryService.canEdit(entry.get(), DataController.getJWTCookie(request.getCookies())))
 				return new ResponseEntity<String>("You're not an editor for entry", HttpStatus.NOT_FOUND);
 			resourceEntryService.delete(entry.get());
 			return new ResponseEntity<String>("success", HttpStatus.OK);
