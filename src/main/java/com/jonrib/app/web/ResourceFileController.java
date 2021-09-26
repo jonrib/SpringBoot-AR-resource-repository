@@ -86,6 +86,24 @@ public class ResourceFileController {
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
 				"attachment; filename=\"" + actualFile.getFilename() + "\"").contentType(MediaType.parseMediaType("application/octet-stream")).body(actualFile);
 	}
+
+	@GetMapping("/resourceEntries/{eid:.+}/files/name/{name:.+}")
+	@ResponseBody
+	public ResponseEntity<Resource> serveFileByName(@PathVariable String name, @PathVariable String eid, HttpServletRequest request) throws ResourceEntryNotFoundException, ResourceEntryNoAccessException, BadResourceFileForEntryException {
+		Optional<ResourceEntry> entry = resourceEntryService.findById(Long.parseLong(eid));
+		if (entry.isEmpty())
+			throw new ResourceEntryNotFoundException();
+		if (!resourceEntryService.canRead(entry.get(),DataController.getJWTCookie(request.getCookies())) && !resourceEntryService.canEdit(entry.get(),DataController.getJWTCookie(request.getCookies()))) {
+			throw new ResourceEntryNoAccessException();
+		}
+		Optional<ResourceFile> file = entry.get().getFiles().stream().filter(x -> x.getFileName().equals(name)).findFirst();
+		if (file.isEmpty()) {
+			throw new BadResourceFileForEntryException();
+		}
+		Resource actualFile = storageService.loadAsResource(file.get().getFilePath());
+		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+				"attachment; filename=\"" + actualFile.getFilename() + "\"").contentType(MediaType.parseMediaType("application/octet-stream")).body(actualFile);
+	}
 	
 	@ExceptionHandler(BadResourceFileForEntryException.class)
 	public ResponseEntity<String> handleResourceFileNotForEntry(BadResourceFileForEntryException exc){
