@@ -100,7 +100,7 @@ public class ResourceFileController {
 		if (file.isEmpty()) {
 			throw new BadResourceFileForEntryException();
 		}
-		Resource actualFile = storageService.loadAsResource(file.get().getFilePath());
+		Resource actualFile = storageService.loadAsResource(file.get().getData());
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
 				"attachment; filename=\"" + actualFile.getFilename() + "\"").contentType(MediaType.parseMediaType("application/octet-stream")).body(actualFile);
 	}
