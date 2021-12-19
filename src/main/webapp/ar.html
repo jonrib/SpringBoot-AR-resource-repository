@@ -1,0 +1,300 @@
+<!doctype html>
+<!--
+Copyright 2018 The Immersive Web Community Group
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=no'>
+    <meta name='mobile-web-app-capable' content='yes'>
+    <meta name='apple-mobile-web-app-capable' content='yes'>
+    <link rel='icon' type='image/png' sizes='32x32' href='favicon-32x32.png'>
+    <link rel='icon' type='image/png' sizes='96x96' href='favicon-96x96.png'>
+    <link rel='stylesheet' href='css/common.css'>
+
+    <title>Launch AR</title>
+  </head>
+  <style>
+    #overlay{
+      padding: 15px;
+      color: green;
+    }
+    #expandButton{
+      font-size: 32px;
+    }#decreaseButton{
+      font-size: 32px;
+    }
+  </style>
+  <body>
+    <header>
+      <details open>
+        <summary>Description</summary>
+        <p>
+          When you press START AR your selected model will be displayed once a surface is found...
+          If you cannot press START AR then AR is not supported on your device.
+          <a class="back" href="./">Back</a>
+        </p>
+        <div id="overlay" style="display: none;">
+          <header>
+            <summary>Command buttons</summary>
+            <p>
+              These buttons are used to control models
+            </p>
+            <button id="expandButton" class="">Increase size</button>
+            <button id="decreaseButton" class="">Decrease size</button>
+          </header>
+        </div>
+      </details>
+    </header>
+    <script type="module">
+      import {WebXRButton} from './js/util/webxr-button.js';
+      import {Scene} from './js/render/scenes/scene.js';
+      import {Renderer, createWebGLContext} from './js/render/core/renderer.js';
+      import {Node} from './js/render/core/node.js';
+      import {Gltf2Node} from './js/render/nodes/gltf2.js';
+      import {DropShadowNode} from './js/render/nodes/drop-shadow.js';
+      import {vec3} from './js/render/math/gl-matrix.js';
+      import {Ray} from './js/render/math/ray.js';
+
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      let resourceId = urlParams.get('resourceId');
+      let fileIds = urlParams.get('fileIds').split(',');
+      let backUrl = urlParams.get('backUrl');
+
+      // XR globals.
+      let xrButton = null;
+      let xrRefSpace = null;
+      let xrViewerSpace = null;
+      let xrHitTestSource = null;
+      let modelScale = 1;
+
+      // WebGL scene globals.
+      let gl = null;
+      let renderer = null;
+      let scene = new Scene();
+
+      let isExpand = false;
+
+      scene.enableStats(false);
+
+      document.getElementById('expandButton').onclick = (ev) => {
+        isExpand = true;
+        modelScale = modelScale + 0.1;
+        initModels();
+      };
+
+      document.getElementById('decreaseButton').onclick = (ev) => {
+        isExpand = true;
+        modelScale = modelScale - 0.1;
+        initModels();
+      };
+
+      var arObjects = [];
+
+      function initModels() {
+        models = [];
+        arObjects.forEach(object => {
+          scene.removeNode(object);
+        });
+        arObjects = [];
+
+        fileIds.forEach(fileId => {
+          let arObject = new Node();
+          arObject.visible = false;
+          scene.addNode(arObject);
+
+          let model = new Gltf2Node({url: backUrl+'/resourceEntries/'+resourceId+'/files/'+fileId});
+          vec3.set(model.scale, modelScale, modelScale, modelScale);
+
+          arObject.addNode(model);
+
+          // Having a really simple drop shadow underneath an object helps ground
+          // it in the world without adding much complexity.
+          let shadow = new DropShadowNode();
+          vec3.set(shadow.scale, 0.3, 0.3, 0.3);
+          arObject.addNode(shadow);
+
+          arObjects.push(arObject);
+        });
+      }
+      let models = [];
+      initModels();
+
+      let reticle = new Gltf2Node({url: 'media/gltf/reticle/reticle.gltf'});
+      reticle.visible = false;
+      scene.addNode(reticle);
+
+      const MAX_MODELS = fileIds.length;
+      
+
+      // Ensure the background is transparent for AR.
+      scene.clear = false;
+
+      function initXR() {
+        xrButton = new WebXRButton({
+          onRequestSession: onRequestSession,
+          onEndSession: onEndSession,
+          textEnterXRTitle: "START AR",
+          textXRNotFoundTitle: "AR NOT FOUND",
+          textExitXRTitle: "EXIT  AR",
+        });
+        document.querySelector('header').appendChild(xrButton.domElement);
+        
+        if (navigator.xr) {
+          navigator.xr.isSessionSupported('immersive-ar')
+                      .then((supported) => {
+            xrButton.enabled = supported;
+          });
+        }
+      }
+
+      function onRequestSession() {
+        var x = document.getElementById("overlay");
+        x.style.display = "block";
+
+        return navigator.xr.requestSession('immersive-ar', {
+          requiredFeatures: ['local', 'hit-test'], 
+          optionalFeatures: ["dom-overlay"],
+          domOverlay: {
+            root: document.getElementById("overlay")
+          }
+        })
+          .then((session) => {
+          xrButton.setSession(session);
+          onSessionStarted(session);
+        });
+      }
+
+      function onSessionStarted(session) {
+        session.addEventListener('end', onSessionEnded);
+        session.addEventListener('select', onSelect);
+
+        if (!gl) {
+          gl = createWebGLContext({
+            xrCompatible: true
+          });
+
+          renderer = new Renderer(gl);
+
+          scene.setRenderer(renderer);
+        }
+
+        session.updateRenderState({ baseLayer: new XRWebGLLayer(session, gl) });
+
+        // In this sample we want to cast a ray straight out from the viewer's
+        // position and render a reticle where it intersects with a real world
+        // surface. To do this we first get the viewer space, then create a
+        // hitTestSource that tracks it.
+        session.requestReferenceSpace('viewer').then((refSpace) => {
+          xrViewerSpace = refSpace;
+          session.requestHitTestSource({ space: xrViewerSpace }).then((hitTestSource) => {
+            xrHitTestSource = hitTestSource;
+          });
+        });
+
+        session.requestReferenceSpace('local').then((refSpace) => {
+          xrRefSpace = refSpace;
+
+          session.requestAnimationFrame(onXRFrame);
+        });
+      }
+
+      function onEndSession(session) {
+        var x = document.getElementById("overlay");
+        x.style.display = "none";
+
+        xrHitTestSource.cancel();
+        xrHitTestSource = null;
+        session.end();
+      }
+
+      function onSessionEnded(event) {
+        xrButton.setSession(null);
+      }
+      // Adds a new object to the scene at the
+      // specified transform.
+      function addARObjectAt(matrix) {
+        // For performance reasons if we add too many objects start
+        // removing the oldest ones to keep the scene complexity
+        // from growing too much.
+        if (models.length+1 > MAX_MODELS) {
+          let oldModel = models.shift();
+          scene.removeNode(oldModel);
+        }
+
+        let newModel = arObjects.shift();
+        arObjects.push(newModel);
+        vec3.set(newModel.scale, 0.15, 0.15, 0.15);
+        newModel.visible = true;
+        newModel.matrix = matrix;
+        scene.addNode(newModel);
+
+        models.push(newModel);
+
+        
+      }
+
+      let rayOrigin = vec3.create();
+      let rayDirection = vec3.create();
+      function onSelect(event) {
+        if (reticle.visible) {
+          // The reticle should already be positioned at the latest hit point, 
+          // so we can just use it's matrix to save an unnecessary call to 
+          // event.frame.getHitTestResults.
+          if (isExpand)
+            isExpand = false;
+          else
+            addARObjectAt(reticle.matrix);
+        }
+      }
+
+      // Called every time a XRSession requests that a new frame be drawn.
+      function onXRFrame(t, frame) {
+        let session = frame.session;
+        let pose = frame.getViewerPose(xrRefSpace);
+
+        reticle.visible = false;
+
+        // If we have a hit test source, get its results for the frame
+        // and use the pose to display a reticle in the scene.
+        if (xrHitTestSource && pose) {
+          let hitTestResults = frame.getHitTestResults(xrHitTestSource);
+          if (hitTestResults.length > 0) {
+            let pose = hitTestResults[0].getPose(xrRefSpace);
+            reticle.visible = true;
+            reticle.matrix = pose.transform.matrix;
+          }
+        }
+
+        scene.startFrame();
+
+        session.requestAnimationFrame(onXRFrame);
+
+        scene.drawXRFrame(frame, pose);
+
+        scene.endFrame();
+      }
+
+      // Start the XR application.
+      initXR();
+    </script>
+  </body>
+</html>
