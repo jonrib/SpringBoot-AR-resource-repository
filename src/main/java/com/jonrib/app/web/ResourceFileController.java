@@ -84,7 +84,7 @@ public class ResourceFileController {
 		}
 		Resource actualFile = storageService.loadAsResource(file.get().getData());
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-				"attachment; filename=\"" + actualFile.getFilename() + "\"").contentType(MediaType.parseMediaType("application/octet-stream")).body(actualFile);
+				"attachment; filename=\"" + file.get().getFileName() + "\"").contentType(MediaType.parseMediaType("application/octet-stream")).body(actualFile);
 	}
 
 	@GetMapping("/resourceEntries/{eid:.+}/files/name/{name:.+}")
@@ -102,7 +102,7 @@ public class ResourceFileController {
 		}
 		Resource actualFile = storageService.loadAsResource(file.get().getData());
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-				"attachment; filename=\"" + actualFile.getFilename() + "\"").contentType(MediaType.parseMediaType("application/octet-stream")).body(actualFile);
+				"attachment; filename=\"" + file.get().getFileName() + "\"").contentType(MediaType.parseMediaType("application/octet-stream")).body(actualFile);
 	}
 	
 	@ExceptionHandler(BadResourceFileForEntryException.class)
