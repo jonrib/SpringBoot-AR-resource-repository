@@ -34,10 +34,13 @@ public class JwtTokenUtil implements Serializable {
 	//retrieve username from jwt token
 	public String getUsernameFromToken(String token) {
 		try {
+			System.out.println("JWT here? "+token);
 			String username = getClaimFromToken(token, Claims::getSubject);
+			System.out.println("username "+username);
 			if (userService.findByUsername(username) == null) {
 				return "anonymousUser";
 			}else {
+				System.out.println("returning "+username);
 				return username;
 			}
 		}catch(Exception e) {

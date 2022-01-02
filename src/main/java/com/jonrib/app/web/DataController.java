@@ -28,6 +28,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jonrib.app.model.ResourceEntry;
 import com.jonrib.app.model.User;
 import com.jonrib.app.service.UserService;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 
 @Controller
@@ -54,7 +56,16 @@ public class DataController{
 		return new ResponseEntity<String>("success", HttpStatus.OK);
 	}
 
+	public static String getBearerTokenHeader() {
+		return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getHeader("Authorization");
+	}
+
 	public static String getJWTCookie(Cookie[] cookies) {
+		String header = getBearerTokenHeader();
+		if (header != null && !header.equals("")){
+			return header;
+		}
+
 		if (cookies == null)
 			return "";
 		for (Cookie cookie : cookies) {

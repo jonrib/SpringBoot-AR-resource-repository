@@ -51,7 +51,7 @@ public class SecurityServiceImpl implements SecurityService{
 				System.out.println("Get logged in JWT Token has expired");
 			}
 		} else {
-			logger.warn("Get logged in JWT Token does not begin with JWT String.");
+			logger.warn("Get logged in JWT Token does not begin with JWT String. "+token);
 		}
 
         return "anonymousUser";
