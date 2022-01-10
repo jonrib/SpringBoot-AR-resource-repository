@@ -3,10 +3,12 @@ package com.jonrib.app.web;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
+import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -70,7 +72,7 @@ public class PreviewImageController {
 
 	@GetMapping("/resourceEntries/{eid:.+}/previewImages/{id:.+}")
 	@ResponseBody
-	public ResponseEntity<Resource> serveFile(@PathVariable String id, @PathVariable String eid, HttpServletRequest request) throws ResourceEntryNotFoundException, ResourceEntryNoAccessException, BadResourceFileForEntryException {
+	public ResponseEntity<Resource> serveFile(@PathVariable String id, @PathVariable String eid, HttpServletRequest request) throws InterruptedException, ResourceEntryNotFoundException, ResourceEntryNoAccessException, BadResourceFileForEntryException {
 		Optional<ResourceEntry> entry = resourceEntryService.findById(Long.parseLong(eid));
 		if (entry.isEmpty())
 			throw new ResourceEntryNotFoundException();
@@ -81,9 +83,9 @@ public class PreviewImageController {
 		if (file.isEmpty()) {
 			throw new BadResourceFileForEntryException();
 		}
-		Resource actualFile = storageService.loadAsResource(file.get().getData());
+
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-				"attachment; filename=\"" + actualFile.getFilename() + "\"").body(actualFile);
+				"attachment; filename=\"" + file.get().getFileName() + "\"").body(new ByteArrayResource(file.get().getData()));
 	}
 	
 	@ExceptionHandler(BadResourceFileForEntryException.class)

@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -82,9 +83,8 @@ public class ResourceFileController {
 		if (file.isEmpty()) {
 			throw new BadResourceFileForEntryException();
 		}
-		Resource actualFile = storageService.loadAsResource(file.get().getData());
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-				"attachment; filename=\"" + file.get().getFileName() + "\"").contentType(MediaType.parseMediaType("application/octet-stream")).body(actualFile);
+				"attachment; filename=\"" + file.get().getFileName() + "\"").contentType(MediaType.parseMediaType("application/octet-stream")).body(new ByteArrayResource(file.get().getData()));
 	}
 
 	@GetMapping("/resourceEntries/{eid:.+}/files/name/{name:.+}")
@@ -100,9 +100,8 @@ public class ResourceFileController {
 		if (file.isEmpty()) {
 			throw new BadResourceFileForEntryException();
 		}
-		Resource actualFile = storageService.loadAsResource(file.get().getData());
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-				"attachment; filename=\"" + file.get().getFileName() + "\"").contentType(MediaType.parseMediaType("application/octet-stream")).body(actualFile);
+				"attachment; filename=\"" + file.get().getFileName() + "\"").contentType(MediaType.parseMediaType("application/octet-stream")).body(new ByteArrayResource(file.get().getData()));
 	}
 	
 	@ExceptionHandler(BadResourceFileForEntryException.class)
